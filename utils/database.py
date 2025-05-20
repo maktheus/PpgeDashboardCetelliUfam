@@ -53,94 +53,284 @@ def init_database():
             )
             """)
             
-            # Create tables for different data types
+            # Create tables for all identified data types from the Excel file
             
-            # Table for EGRESSOS-M-INFOS
+            # Infos
+            cursor.execute("""
+            CREATE TABLE IF NOT EXISTS infos (
+                id SERIAL PRIMARY KEY,
+                info_text TEXT,
+                upload_id INTEGER REFERENCES uploaded_files(id)
+            )
+            """)
+            
+            # EGRESSO-MESTRADO
+            cursor.execute("""
+            CREATE TABLE IF NOT EXISTS egresso_mestrado (
+                id SERIAL PRIMARY KEY,
+                ata TEXT,
+                aluno TEXT,
+                ano_ingresso TEXT,
+                defesa TEXT,
+                orientador TEXT,
+                titulo_defesa TEXT,
+                upload_id INTEGER REFERENCES uploaded_files(id)
+            )
+            """)
+            
+            # EGRESSOS-M-INFOS
             cursor.execute("""
             CREATE TABLE IF NOT EXISTS egressos_m_infos (
                 id SERIAL PRIMARY KEY,
-                student_id TEXT,
-                student_name TEXT,
-                degree_type TEXT,
-                continuation_level TEXT,
-                employment_status TEXT,
-                geographic_region TEXT,
+                orientando TEXT,
+                orientador TEXT,
+                defesa TEXT,
+                cursando_doutorado TEXT,
+                trabalhando TEXT,
+                trabalhando_outro_estado TEXT,
                 upload_id INTEGER REFERENCES uploaded_files(id)
             )
             """)
             
-            # Table for EGRESSOS-D-INFOS
+            # EGRESSO-DOUTORADO
+            cursor.execute("""
+            CREATE TABLE IF NOT EXISTS egresso_doutorado (
+                id SERIAL PRIMARY KEY,
+                ata TEXT,
+                aluno TEXT,
+                ano_ingresso TEXT,
+                defesa TEXT,
+                orientador TEXT,
+                titulo_defesa TEXT,
+                upload_id INTEGER REFERENCES uploaded_files(id)
+            )
+            """)
+            
+            # EGRESSOS-D-INFOS
             cursor.execute("""
             CREATE TABLE IF NOT EXISTS egressos_d_infos (
                 id SERIAL PRIMARY KEY,
-                student_id TEXT,
-                student_name TEXT,
-                degree_type TEXT,
-                continuation_level TEXT,
-                employment_status TEXT,
-                geographic_region TEXT,
+                orientando TEXT,
+                orientador TEXT,
+                defesa TEXT,
+                cursando_doutorado TEXT,
+                trabalhando TEXT,
+                trabalhando_outro_estado TEXT,
                 upload_id INTEGER REFERENCES uploaded_files(id)
             )
             """)
             
-            # Table for EGRESSOS-MESTRADO
+            # OFERTA-DEMANDA
             cursor.execute("""
-            CREATE TABLE IF NOT EXISTS egressos_mestrado (
+            CREATE TABLE IF NOT EXISTS oferta_demanda (
                 id SERIAL PRIMARY KEY,
-                student_id TEXT,
-                student_name TEXT,
-                enrollment_date DATE,
-                defense_date DATE,
-                advisor_name TEXT,
-                program TEXT,
+                descricao TEXT,
+                ano_2021 INTEGER,
+                ano_2022 INTEGER,
+                ano_2023 INTEGER,
+                ano_2024 INTEGER,
                 upload_id INTEGER REFERENCES uploaded_files(id)
             )
             """)
             
-            # Table for EGRESSOS-DOUTORADO
+            # PROJETOS
             cursor.execute("""
-            CREATE TABLE IF NOT EXISTS egressos_doutorado (
+            CREATE TABLE IF NOT EXISTS projetos (
                 id SERIAL PRIMARY KEY,
-                student_id TEXT,
-                student_name TEXT,
-                enrollment_date DATE,
-                defense_date DATE,
-                advisor_name TEXT,
-                program TEXT,
+                numero INTEGER,
+                titulo TEXT,
+                natureza TEXT,
+                coordenador TEXT,
+                financiador TEXT,
+                projetos_nao_academicos TEXT,
+                resumo TEXT,
+                valor_financiado TEXT,
+                atuacao TEXT,
+                alunos_envolvidos TEXT,
+                ano_inicio TEXT,
+                ano_fim TEXT,
                 upload_id INTEGER REFERENCES uploaded_files(id)
             )
             """)
             
-            # Table for Melhores-Teses
+            # DOCENTES-PERMANENTES
+            cursor.execute("""
+            CREATE TABLE IF NOT EXISTS docentes_permanentes (
+                id SERIAL PRIMARY KEY,
+                docente TEXT,
+                categoria TEXT,
+                ano INTEGER,
+                upload_id INTEGER REFERENCES uploaded_files(id)
+            )
+            """)
+            
+            # PERIODICOS
+            cursor.execute("""
+            CREATE TABLE IF NOT EXISTS periodicos (
+                id SERIAL PRIMARY KEY,
+                numero INTEGER,
+                titulo TEXT,
+                periodico TEXT,
+                autor TEXT,
+                ano INTEGER,
+                tem_discente_egresso TEXT,
+                tem_docente_ppgee TEXT,
+                titulo_tese_dissertacao TEXT,
+                cont INTEGER,
+                upload_id INTEGER REFERENCES uploaded_files(id)
+            )
+            """)
+            
+            # CONFERENCIAS
+            cursor.execute("""
+            CREATE TABLE IF NOT EXISTS conferencias (
+                id SERIAL PRIMARY KEY,
+                numero INTEGER,
+                titulo TEXT,
+                autor TEXT,
+                ano INTEGER,
+                titulo_tese_dissertacao TEXT,
+                cont INTEGER,
+                upload_id INTEGER REFERENCES uploaded_files(id)
+            )
+            """)
+            
+            # TCC-IC
+            cursor.execute("""
+            CREATE TABLE IF NOT EXISTS tcc_ic (
+                id SERIAL PRIMARY KEY,
+                docente TEXT,
+                tcc_1 TEXT,
+                tcc_2 TEXT,
+                tcc_3 TEXT,
+                tcc_4 TEXT,
+                coluna5 TEXT,
+                ic_1 TEXT,
+                ic_2 TEXT,
+                ic_3 TEXT,
+                ic_4 TEXT,
+                upload_id INTEGER REFERENCES uploaded_files(id)
+            )
+            """)
+            
+            # DOCENTES-DISC-N-CH
+            cursor.execute("""
+            CREATE TABLE IF NOT EXISTS docentes_disc_n_ch (
+                id SERIAL PRIMARY KEY,
+                docente TEXT,
+                dppg_1 TEXT,
+                dppg_2 TEXT,
+                dppg_3 TEXT,
+                dppg_4 TEXT,
+                coluna5 TEXT,
+                dg_ch_1 TEXT,
+                dg_ch_2 TEXT,
+                dg_ch_3 TEXT,
+                dg_ch_4 TEXT,
+                disc_grad_5 TEXT,
+                dg_n_1 TEXT,
+                dg_n_2 TEXT,
+                dg_n_3 TEXT,
+                dg_n_4 TEXT,
+                upload_id INTEGER REFERENCES uploaded_files(id)
+            )
+            """)
+            
+            # REVISOR-EDITOR
+            cursor.execute("""
+            CREATE TABLE IF NOT EXISTS revisor_editor (
+                id SERIAL PRIMARY KEY,
+                nome_docente TEXT,
+                nome_evento TEXT,
+                ano INTEGER,
+                nacional_internacional TEXT,
+                funcao_desempenhada TEXT,
+                sucupira TEXT,
+                upload_id INTEGER REFERENCES uploaded_files(id)
+            )
+            """)
+            
+            # Eventos
+            cursor.execute("""
+            CREATE TABLE IF NOT EXISTS eventos (
+                id SERIAL PRIMARY KEY,
+                proposta TEXT,
+                upload_id INTEGER REFERENCES uploaded_files(id)
+            )
+            """)
+            
+            # TURMAS-OFERTADAS
+            cursor.execute("""
+            CREATE TABLE IF NOT EXISTS turmas_ofertadas (
+                id SERIAL PRIMARY KEY,
+                unidade TEXT,
+                ano INTEGER,
+                periodo TEXT,
+                cod_disciplina TEXT,
+                disciplina TEXT,
+                sigla_disciplina TEXT,
+                cod_turma TEXT,
+                cod_curso TEXT,
+                curso TEXT,
+                situacao TEXT,
+                docente TEXT,
+                vagas_oferecidas INTEGER,
+                vagas_aumentadas INTEGER,
+                qtd_matriculado INTEGER,
+                qtd_aprovados INTEGER,
+                qtd_reprovado_nota INTEGER,
+                qtd_reprovado_freq INTEGER,
+                qtd_trancados INTEGER,
+                horario TEXT,
+                upload_id INTEGER REFERENCES uploaded_files(id)
+            )
+            """)
+            
+            # DISCP-TOTAL-ATIVAS
+            cursor.execute("""
+            CREATE TABLE IF NOT EXISTS discp_total_ativas (
+                id SERIAL PRIMARY KEY,
+                disciplina TEXT,
+                curso TEXT,
+                cr TEXT,
+                curso2 TEXT,
+                data_ini TEXT,
+                data_fim TEXT,
+                ativo TEXT,
+                unnamed_7 TEXT,
+                unnamed_8 TEXT,
+                upload_id INTEGER REFERENCES uploaded_files(id)
+            )
+            """)
+            
+            # Melhores-Teses
             cursor.execute("""
             CREATE TABLE IF NOT EXISTS melhores_teses (
                 id SERIAL PRIMARY KEY,
-                student_id TEXT,
-                student_name TEXT,
-                title TEXT,
-                defense_date DATE,
-                advisor_name TEXT,
-                justification TEXT,
-                originality_score NUMERIC,
-                relevance_score NUMERIC,
-                innovation_potential NUMERIC,
+                aluno TEXT,
+                titulo TEXT,
+                defesa TEXT,
+                orientador TEXT,
+                justificativa TEXT,
+                nota_originalidade NUMERIC,
+                nota_relevancia NUMERIC,
+                potencial_inovacao NUMERIC,
                 upload_id INTEGER REFERENCES uploaded_files(id)
             )
             """)
             
-            # Table for Melhores-Dissertacoes
+            # Melhores-Dissertacoes
             cursor.execute("""
             CREATE TABLE IF NOT EXISTS melhores_dissertacoes (
                 id SERIAL PRIMARY KEY,
-                student_id TEXT,
-                student_name TEXT,
-                title TEXT,
-                defense_date DATE,
-                advisor_name TEXT,
-                justification TEXT,
-                originality_score NUMERIC,
-                relevance_score NUMERIC,
-                innovation_potential NUMERIC,
+                aluno TEXT,
+                titulo TEXT,
+                defesa TEXT,
+                orientador TEXT,
+                justificativa TEXT,
+                nota_originalidade NUMERIC,
+                nota_relevancia NUMERIC,
+                potencial_inovacao NUMERIC,
                 upload_id INTEGER REFERENCES uploaded_files(id)
             )
             """)
@@ -210,10 +400,22 @@ def get_table_type_mapping():
     - Dictionary with table type to table name mapping
     """
     return {
+        "Infos": "infos",
+        "EGRESSO-MESTRADO": "egresso_mestrado",
         "EGRESSOS-M-INFOS": "egressos_m_infos",
+        "EGRESSO-DOUTORADO": "egresso_doutorado",
         "EGRESSOS-D-INFOS": "egressos_d_infos",
-        "EGRESSOS-MESTRADO": "egressos_mestrado",
-        "EGRESSOS-DOUTORADO": "egressos_doutorado",
+        "OFERTA-DEMANDA": "oferta_demanda",
+        "PROJETOS": "projetos",
+        "DOCENTES-PERMANENTES": "docentes_permanentes",
+        "PERIODICOS": "periodicos",
+        "CONFERENCIAS": "conferencias",
+        "TCC-IC": "tcc_ic",
+        "DOCENTES-DISC-N-CH": "docentes_disc_n_ch",
+        "REVISOR-EDITOR": "revisor_editor",
+        "Eventos": "eventos",
+        "TURMAS-OFERTADAS": "turmas_ofertadas",
+        "DISCP-TOTAL-ATIVAS": "discp_total_ativas",
         "Melhores-Teses": "melhores_teses",
         "Melhores-Dissertacoes": "melhores_dissertacoes"
     }
