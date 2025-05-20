@@ -1,0 +1,55 @@
+Com base nas fontes fornecidas, a avaliação do programa de Engenharias IV pela CAPES utiliza uma série de indicadores quantitativos para auxiliar na análise dos diferentes quesitos. O "Apêndice" da Ficha de Avaliação detalha a descrição e o cálculo desses indicadores.
+Abaixo está a listagem dos principais indicadores mencionados e como são descritos ou calculados pelas fontes:
+1.
+FOR-H: Representa o valor médio do fator H ampliado dos docentes permanentes, medido pelas plataformas SCOPUS/WebOfScience (para docentes cadastrados com seus identificadores). O cálculo é baseado no valor do último ano coletado, normalizado pelo número de anos desde a obtenção do doutorado. Este indicador busca inferir a qualidade do corpo docente em termos de seu impacto internacional através da citação da produção intelectual ao longo da carreira após o doutorado.
+2.
+FOR: Representa o percentual de docentes permanentes que são detentores de bolsa de Produtividade em Pesquisa (Bolsa PQ) do CNPq. Estima a maturidade científica do corpo docente, considerando os critérios de concessão da bolsa, que abrangem qualidade e volume da produção científica e técnica, experiência de orientação e aspectos qualitativos.
+3.
+FORDT: Representa o percentual de docentes permanentes que são detentores de bolsa de Produtividade em Desenvolvimento Tecnológico e Extensão Inovadora (Bolsa DT) do CNPq. Busca medir a maturidade do corpo docente na produção, desenvolvimento e inovação tecnológica.
+◦
+Observação: Os indicadores FOR e FORDT são aplicados de forma ponderada de acordo com a modalidade do programa: 0,7FOR + 0,3FORDT para programas Acadêmicos e 0,3FOR + 0,7FORDT para programas Profissionais.
+4.
+DED: Mede o percentual de docentes permanentes do programa que possuem dedicação exclusiva ao programa. É calculado pela fórmula: (número de docentes permanentes que atuam exclusivamente no programa) / (total de docentes permanentes do programa). As Engenharias IV consideram salutar que pelo menos 50% dos docentes permanentes tenham atuação exclusiva, almejando o crescimento desse indicador. Exceções são consideradas para IES com programas Acadêmicos e Profissionais simultaneamente.
+5.
+D3A: Quantifica a porcentagem de docentes permanentes intensamente envolvidos em atividades de pesquisa e que atendem todos os seguintes requisitos: lecionou uma disciplina na pós-graduação, participou de produção relevante e teve orientação concluída no período da avaliação.
+6.
+ADE1: Percentual da carga horária anual de disciplinas oferecidas pelo PPG que é atribuída a docentes colaboradores ou visitantes.
+7.
+ADE2: Percentual das teses de doutorado e/ou dissertações de mestrado concluídas, para cada ano, que têm orientação atribuída a docentes colaboradores ou visitantes.
+8.
+ATI: Definido como a carga horária anual média de disciplinas ministradas na pós-graduação pelos docentes permanentes.
+9.
+ATG1: Definido como a carga horária anual média de disciplinas ministradas na graduação pelos docentes permanentes.
+10.
+ATG2: Definido como o número de alunos de iniciação científica da graduação orientados pelos docentes permanentes.
+11.
+ORI: Objetiva avaliar a intensidade da formação de recursos humanos de alto nível, por meio do número de orientações de dissertações e de teses de doutorado concluídas. Calculado da seguinte maneira: ORI = (número de Mestres titulados x 1 + número de Doutores titulados x 3) / DP, onde DP é o número de docentes permanentes. Para PPGs apenas com mestrado, usa-se somente o número de Mestres titulados.
+12.
+PDO: Quantifica a distribuição das orientações de dissertações e de teses de doutorado entre os docentes. É calculado pela porcentagem de docentes permanentes que participam da orientação de dissertações ou teses defendidas, por ano. Os indicadores ADE1 e ADE2 também são observados em relação ao PDO.
+13.
+DPI_docente: Objetiva estimar o número e a qualidade da produção intelectual do corpo docente. É calculado pela soma ponderada da produção em termos dos estratos do Qualis Periódicos (A1 a B4), dividida pelo número de docentes permanentes (DP). A fórmula é: DPI_docente = (A1 + 0,875A2 + 0,75A3 + 0,6A4 + 0,3B1 + 0,2B2 + 0,1B3 + 0,05B4) / DP. A produção de jovens doutores apadrinhados (JDP) é considerada, mas eles não integram o DP para este cálculo.
+◦
+Bônus de produção tecnológica relevante no DPI_docente: patentes depositadas equivalem a 1 artigo A2 no ano de depósito; patentes concedidas equivalem a 2 artigos A1 no ano de concessão; patentes licenciadas com retorno financeiro igual ou superior a R$ 100.000,00 equivalem a 5 artigos A1 (uma vez, no ano que atingir a condição).
+14.
+DPI_discente_Dout: Objetiva estimar o volume e a qualidade da produção intelectual originada pelo corpo discente em programas de Doutorado. É calculado pela soma ponderada da produção em termos dos estratos do Qualis Periódicos (A1 a B4) que possuem autores discentes ou egressos, dividida pelo número de titulados (NT). A fórmula é: DPI_discente_Dout = (A1 + 0,875A2 + 0,75A3 + 0,6A4 + 0,3B1 + 0,2B2 + 0,1B3 + 0,05B4) / NT.
+◦
+Bônus de produção técnica relevante no DPI_disc_Dout: Mesmos bônus de patentes do DPI_docente.
+15.
+DPI_discente_Mest: Similar ao DPI_discente_Dout, mas para programas de Mestrado. Inclui trabalhos completos em eventos relevantes com participação discente. A fórmula é: DPI_discente_Mest = (A1 + 0,875A2 + 0,75A3 + 0,6A4 + 0,3B1 + 0,2B2 +0,1B3 +0,05B4 +0,15Tcompl_discent) / NT, onde Tcompl_discent é o número de trabalhos completos em eventos relevantes com participação discente e NT é o número de titulados.
+◦
+Bônus de produção técnica relevante no DPI_disc_Mest: Mesmos bônus de patentes do DPI_docente.
+16.
+DPD: Objetiva quantificar a distribuição da produção científica entre os docentes. É calculado computando-se a porcentagem do corpo docente permanente que contribuiu, em um dado ano, para produção intelectual qualificada computada no DPI na faixa A1-A4 do Qualis periódicos.
+17.
+DTD: É calculado computando-se a porcentagem do corpo docente permanente que contribuiu, em um dado ano, com a autoria de patentes depositadas ou concedidas.
+18.
+ADER: Mede a aderência da produção do programa (medida pelo DPI_docente) à área de Engenharias IV. É medido no intervalo de avaliação pela razão entre o número de publicações em periódicos aderentes à área de Engenharias IV e o total de publicações em periódicos do programa.
+19.
+DIEP: Mede a fração de egressos do programa, no período considerado, que se encontram vinculados profissionalmente. Utiliza informações da RAIS presentes no Painel de Indicadores DAV CAPES.
+20.
+DIEG: Verifica a fração de egressos do programa, no período considerado, que se encontram em atividade de pós-graduação de nível superior. Utiliza dados do Painel de Indicadores DAV CAPES.
+21.
+DIER: Mede a distribuição regional dos egressos do programa. Considera-se salutar quando essa distribuição contribui para o fortalecimento da pós-graduação em regiões e estados onde a presença da área é ainda reduzida. Utiliza dados do Painel de Indicadores DAV CAPES.
+22.
+DISC: Mede a oferta de disciplinas pelo programa. É calculado pela razão do número de disciplinas com turmas ofertadas em relação ao número total de disciplinas cadastradas pelo programa.
+Esses indicadores são ferramentas quantitativas que subsidiam a avaliação qualitativa realizada pela Comissão de Área em cada um dos quesitos principais: Programa, Formação e Impacto na Sociedade.
