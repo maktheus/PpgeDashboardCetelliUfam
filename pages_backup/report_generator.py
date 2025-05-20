@@ -8,26 +8,26 @@ from datetime import datetime
 def render_page():
     """Render the Report Generator page"""
     
-    st.title("📝 Report Generator")
+    st.title("📝 Gerador de Relatórios")
     
     # Get filtered data
     df = DataManager.get_data()
     
     # Show filter information
     st.info(
-        f"Viewing data for: Year = {st.session_state.selected_year}, "
-        f"Program = {st.session_state.selected_program}"
+        f"Visualizando dados para: Ano = {st.session_state.selected_year}, "
+        f"Programa = {st.session_state.selected_program}"
     )
     
     if df.empty:
-        st.warning("No data available to generate reports. Please import data first.")
+        st.warning("Não há dados disponíveis para gerar relatórios. Por favor, importe dados primeiro.")
         return
     
     # Create tabs for different report types
     tab1, tab2, tab3 = st.tabs([
-        "Student Reports", 
-        "Faculty Reports", 
-        "Program Performance Reports"
+        "Relatórios de Estudantes", 
+        "Relatórios de Docentes", 
+        "Relatórios de Desempenho do Programa"
     ])
     
     with tab1:
@@ -42,14 +42,14 @@ def render_page():
 def render_student_report_section(df):
     """Render the student reports section"""
     
-    st.subheader("Student Reports")
+    st.subheader("Relatórios de Estudantes")
     
     # Store available columns for report generation
     if 'report_columns' not in st.session_state:
         st.session_state.report_columns = list(df.columns)
     
     # Filter options
-    st.markdown("### Report Filters")
+    st.markdown("### Filtros de Relatório")
     
     col1, col2 = st.columns(2)
     
@@ -57,12 +57,12 @@ def render_student_report_section(df):
         # Date range filter
         if 'enrollment_date' in df.columns:
             start_date, end_date = render_date_range_filter(
-                label="Enrollment Date Range",
+                label="Período de Matrícula",
                 key_prefix="student_report_date"
             )
         else:
             start_date = end_date = None
-            st.info("No enrollment date data available for filtering.")
+            st.info("Não há dados de data de matrícula disponíveis para filtragem.")
     
     with col2:
         # Program filter
@@ -70,13 +70,13 @@ def render_student_report_section(df):
             programs = ["All"] + sorted(df['program'].unique().tolist())
             selected_programs = render_multi_select_filter(
                 programs[1:],  # Skip "All"
-                "Select Programs",
+                "Selecionar Programas",
                 "student_report_programs",
                 default=[]
             )
         else:
             selected_programs = []
-            st.info("No program data available for filtering.")
+            st.info("Não há dados de programa disponíveis para filtragem.")
     
     # Apply filters
     filters = {}
@@ -93,8 +93,8 @@ def render_student_report_section(df):
         filtered_df = df.copy()
     
     # Report preview
-    st.markdown("### Report Preview")
-    st.write(f"Showing {len(filtered_df)} records")
+    st.markdown("### Pré-visualização do Relatório")
+    st.write(f"Mostrando {len(filtered_df)} registros")
     
     # Student columns to display
     display_cols = ['student_id', 'student_name', 'program', 'department', 
@@ -108,7 +108,7 @@ def render_student_report_section(df):
     st.dataframe(filtered_df[display_cols].head(10), use_container_width=True)
     
     # Report options
-    st.markdown("### Report Options")
+    st.markdown("### Opções de Relatório")
     
     report_title, report_filename, report_type, selected_columns = render_report_options(key_prefix="student")
     
@@ -117,7 +117,7 @@ def render_student_report_section(df):
         selected_columns = display_cols
     
     # Generate report button
-    if st.button("Generate Student Report", key="student_report_button"):
+    if st.button("Gerar Relatório de Estudantes", key="student_report_button"):
         if report_type == "Excel":
             download_link = generate_excel_report(
                 filtered_df[selected_columns],
@@ -135,7 +135,7 @@ def render_student_report_section(df):
                 filename=report_filename
             )
         else:
-            st.error("Invalid report type")
+            st.error("Tipo de relatório inválido")
             return
         
         st.markdown(download_link, unsafe_allow_html=True)
@@ -143,11 +143,11 @@ def render_student_report_section(df):
 def render_faculty_report_section(df):
     """Render the faculty reports section"""
     
-    st.subheader("Faculty Reports")
+    st.subheader("Relatórios de Docentes")
     
     # Check if we have faculty data
     if 'advisor_id' not in df.columns:
-        st.warning("No faculty data available.")
+        st.warning("Não há dados de docentes disponíveis.")
         return
     
     # Get faculty metrics
@@ -155,7 +155,7 @@ def render_faculty_report_section(df):
     faculty_df = calculate_advisor_metrics(df)
     
     if faculty_df.empty:
-        st.warning("No faculty metrics available.")
+        st.warning("Não há métricas de docentes disponíveis.")
         return
     
     # Store available columns for report generation
@@ -164,14 +164,14 @@ def render_faculty_report_section(df):
         st.session_state.report_columns = list(faculty_df.columns)
     
     # Filter options
-    st.markdown("### Report Filters")
+    st.markdown("### Filtros de Relatório")
     
     # Department filter if available
     if 'department' in df.columns:
         departments = df['department'].unique().tolist()
         selected_departments = render_multi_select_filter(
             departments,
-            "Select Departments",
+            "Selecionar Departamentos",
             "faculty_report_departments",
             default=[]
         )
@@ -183,7 +183,7 @@ def render_faculty_report_section(df):
     
     # Add minimum student filter
     min_students = st.slider(
-        "Minimum Number of Students",
+        "Número Mínimo de Estudantes",
         min_value=1,
         max_value=20,
         value=1,
@@ -193,14 +193,14 @@ def render_faculty_report_section(df):
     faculty_df = faculty_df[faculty_df['total_students'] >= min_students]
     
     # Report preview
-    st.markdown("### Report Preview")
-    st.write(f"Showing {len(faculty_df)} faculty members")
+    st.markdown("### Pré-visualização do Relatório")
+    st.write(f"Mostrando {len(faculty_df)} docentes")
     
     # Display preview
     st.dataframe(faculty_df.head(10), use_container_width=True)
     
     # Report options
-    st.markdown("### Report Options")
+    st.markdown("### Opções de Relatório")
     
     report_title, report_filename, report_type, selected_columns = render_report_options(key_prefix="faculty")
     
@@ -209,7 +209,7 @@ def render_faculty_report_section(df):
         selected_columns = list(faculty_df.columns)
     
     # Generate report button
-    if st.button("Generate Faculty Report", key="faculty_report_button"):
+    if st.button("Gerar Relatório de Docentes", key="faculty_report_button"):
         if report_type == "Excel":
             download_link = generate_excel_report(
                 faculty_df[selected_columns],
@@ -227,7 +227,7 @@ def render_faculty_report_section(df):
                 filename=report_filename
             )
         else:
-            st.error("Invalid report type")
+            st.error("Tipo de relatório inválido")
             return
         
         st.markdown(download_link, unsafe_allow_html=True)
@@ -235,75 +235,75 @@ def render_faculty_report_section(df):
 def render_program_report_section(df):
     """Render the program performance reports section"""
     
-    st.subheader("Program Performance Reports")
+    st.subheader("Relatórios de Desempenho do Programa")
     
     # Check if we have program data
     if 'program' not in df.columns:
-        st.warning("No program data available.")
+        st.warning("Não há dados de programa disponíveis.")
         return
     
     # Report type selection
     report_types = [
-        "Program Overview", 
-        "Time to Defense by Program",
-        "Publication Analysis", 
-        "Defense Success Rates",
-        "Enrollment Trends"
+        "Visão Geral do Programa", 
+        "Tempo até Defesa por Programa",
+        "Análise de Publicações", 
+        "Taxas de Sucesso em Defesas",
+        "Tendências de Matrícula"
     ]
     
     selected_report = st.selectbox(
-        "Select Report Type",
+        "Selecione o Tipo de Relatório",
         options=report_types
     )
     
     # Generate the selected report data
-    if selected_report == "Program Overview":
+    if selected_report == "Visão Geral do Programa":
         report_df = generate_program_overview(df)
-        report_title = "Program Overview Report"
-    elif selected_report == "Time to Defense by Program":
+        report_title = "Relatório de Visão Geral do Programa"
+    elif selected_report == "Tempo até Defesa por Programa":
         report_df = generate_time_to_defense_report(df)
-        report_title = "Time to Defense by Program Report"
-    elif selected_report == "Publication Analysis":
+        report_title = "Relatório de Tempo até Defesa por Programa"
+    elif selected_report == "Análise de Publicações":
         report_df = generate_publication_report(df)
-        report_title = "Publication Analysis Report"
-    elif selected_report == "Defense Success Rates":
+        report_title = "Relatório de Análise de Publicações"
+    elif selected_report == "Taxas de Sucesso em Defesas":
         report_df = generate_defense_rates_report(df)
-        report_title = "Defense Success Rates Report"
-    elif selected_report == "Enrollment Trends":
+        report_title = "Relatório de Taxas de Sucesso em Defesas"
+    elif selected_report == "Tendências de Matrícula":
         report_df = generate_enrollment_trends_report(df)
-        report_title = "Enrollment Trends Report"
+        report_title = "Relatório de Tendências de Matrícula"
     else:
-        st.error("Invalid report type")
+        st.error("Tipo de relatório inválido")
         return
     
     if report_df.empty:
-        st.warning("No data available for the selected report type.")
+        st.warning("Não há dados disponíveis para o tipo de relatório selecionado.")
         return
     
     # Store available columns for report generation
     st.session_state.report_columns = list(report_df.columns)
     
     # Report preview
-    st.markdown("### Report Preview")
+    st.markdown("### Pré-visualização do Relatório")
     st.dataframe(report_df, use_container_width=True)
     
     # Report options
-    st.markdown("### Report Options")
+    st.markdown("### Opções de Relatório")
     
     report_filename = st.text_input(
-        "Filename (without extension)", 
+        "Nome do arquivo (sem extensão)", 
         value=f"ppge_{selected_report.lower().replace(' ', '_')}_{datetime.now().strftime('%Y%m%d')}",
         key="program_report_filename"
     )
     
     report_type = st.selectbox(
-        "Report Format", 
+        "Formato do Relatório", 
         ["Excel", "CSV", "PDF"],
         key="program_report_format"
     )
     
     # Generate report button
-    if st.button("Generate Program Report", key="program_report_button"):
+    if st.button("Gerar Relatório do Programa", key="program_report_button"):
         if report_type == "Excel":
             download_link = generate_excel_report(
                 report_df,
@@ -321,31 +321,31 @@ def render_program_report_section(df):
                 filename=report_filename
             )
         else:
-            st.error("Invalid report type")
+            st.error("Tipo de relatório inválido")
             return
         
         st.markdown(download_link, unsafe_allow_html=True)
 
 def generate_program_overview(df):
-    """Generate program overview report data"""
+    """Gera dados de visão geral do programa para relatório"""
     
-    # Program overview
-    program_counts = df.groupby('program').size().reset_index(name='total_students')
+    # Visão geral do programa
+    program_counts = df.groupby('program').size().reset_index(name='total_alunos')
     
-    # Add more metrics if available
+    # Adicionar mais métricas se disponíveis
     if 'defense_status' in df.columns:
-        # Calculate defenses by program
-        defenses = df[df['defense_status'].notna()].groupby('program').size().reset_index(name='total_defenses')
+        # Calcular defesas por programa
+        defenses = df[df['defense_status'].notna()].groupby('program').size().reset_index(name='total_defesas')
         program_counts = program_counts.merge(defenses, on='program', how='left')
-        program_counts['total_defenses'] = program_counts['total_defenses'].fillna(0).astype(int)
+        program_counts['total_defesas'] = program_counts['total_defesas'].fillna(0).astype(int)
         
-        # Calculate success rates
-        success = df[df['defense_status'] == 'Approved'].groupby('program').size().reset_index(name='successful_defenses')
+        # Calcular taxas de sucesso
+        success = df[df['defense_status'] == 'Approved'].groupby('program').size().reset_index(name='defesas_com_sucesso')
         program_counts = program_counts.merge(success, on='program', how='left')
-        program_counts['successful_defenses'] = program_counts['successful_defenses'].fillna(0).astype(int)
-        program_counts['success_rate'] = (program_counts['successful_defenses'] / program_counts['total_defenses']).fillna(0).round(4) * 100
+        program_counts['defesas_com_sucesso'] = program_counts['defesas_com_sucesso'].fillna(0).astype(int)
+        program_counts['taxa_sucesso'] = (program_counts['defesas_com_sucesso'] / program_counts['total_defesas']).fillna(0).round(4) * 100
     
-    # Add time to defense if available
+    # Adicionar tempo até defesa se disponível
     if 'enrollment_date' in df.columns and 'defense_date' in df.columns:
         df_with_time = df.copy()
         df_with_time['time_to_defense'] = (pd.to_datetime(df_with_time['defense_date']) - 
@@ -354,63 +354,63 @@ def generate_program_overview(df):
         time_metrics = df_with_time[df_with_time['time_to_defense'].notna()].groupby('program')['time_to_defense'].agg(
             ['mean', 'median', 'std']).reset_index()
         
-        time_metrics.columns = ['program', 'avg_months_to_defense', 'median_months_to_defense', 'std_months_to_defense']
+        time_metrics.columns = ['program', 'media_meses_ate_defesa', 'mediana_meses_ate_defesa', 'desvio_padrao_meses']
         time_metrics = time_metrics.round(2)
         
         program_counts = program_counts.merge(time_metrics, on='program', how='left')
     
-    # Add publications if available
+    # Adicionar publicações se disponível
     if 'publications' in df.columns:
         pub_metrics = df.groupby('program')['publications'].agg(['sum', 'mean', 'median']).reset_index()
-        pub_metrics.columns = ['program', 'total_publications', 'avg_publications_per_student', 'median_publications']
-        pub_metrics['avg_publications_per_student'] = pub_metrics['avg_publications_per_student'].round(2)
+        pub_metrics.columns = ['program', 'total_publicacoes', 'media_publicacoes_por_aluno', 'mediana_publicacoes']
+        pub_metrics['media_publicacoes_por_aluno'] = pub_metrics['media_publicacoes_por_aluno'].round(2)
         
         program_counts = program_counts.merge(pub_metrics, on='program', how='left')
     
     return program_counts
 
 def generate_time_to_defense_report(df):
-    """Generate time to defense report data"""
+    """Gera dados de relatório de tempo até a defesa"""
     
     if 'enrollment_date' not in df.columns or 'defense_date' not in df.columns:
         return pd.DataFrame()
     
-    # Calculate time to defense
+    # Calcular tempo até a defesa
     df_with_time = df.copy()
     df_with_time['time_to_defense'] = (pd.to_datetime(df_with_time['defense_date']) - 
                                       pd.to_datetime(df_with_time['enrollment_date'])).dt.days / 30.44
     
-    # Only include students who have defended
+    # Incluir apenas estudantes que já defenderam
     df_with_time = df_with_time[df_with_time['time_to_defense'].notna()]
     
     if df_with_time.empty:
         return pd.DataFrame()
     
-    # Group by program and year
+    # Agrupar por programa e ano
     if 'enrollment_date' in df_with_time.columns:
         df_with_time['enrollment_year'] = pd.to_datetime(df_with_time['enrollment_date']).dt.year
         
         time_metrics = df_with_time.groupby(['program', 'enrollment_year'])['time_to_defense'].agg(
             ['count', 'mean', 'median', 'min', 'max']).reset_index()
         
-        time_metrics.columns = ['Program', 'Enrollment Year', 'Number of Defenses', 
-                               'Average Months', 'Median Months', 'Minimum Months', 'Maximum Months']
+        time_metrics.columns = ['Programa', 'Ano de Ingresso', 'Número de Defesas', 
+                               'Média de Meses', 'Mediana de Meses', 'Mínimo de Meses', 'Máximo de Meses']
         
-        # Round floating point columns
-        for col in ['Average Months', 'Median Months', 'Minimum Months', 'Maximum Months']:
+        # Arredondar colunas de ponto flutuante
+        for col in ['Média de Meses', 'Mediana de Meses', 'Mínimo de Meses', 'Máximo de Meses']:
             time_metrics[col] = time_metrics[col].round(1)
         
         return time_metrics
     else:
-        # If enrollment_date not available, just group by program
+        # Se data de matrícula não estiver disponível, agrupar apenas por programa
         time_metrics = df_with_time.groupby('program')['time_to_defense'].agg(
             ['count', 'mean', 'median', 'min', 'max']).reset_index()
         
-        time_metrics.columns = ['Program', 'Number of Defenses', 
-                               'Average Months', 'Median Months', 'Minimum Months', 'Maximum Months']
+        time_metrics.columns = ['Programa', 'Número de Defesas', 
+                               'Média de Meses', 'Mediana de Meses', 'Mínimo de Meses', 'Máximo de Meses']
         
-        # Round floating point columns
-        for col in ['Average Months', 'Median Months', 'Minimum Months', 'Maximum Months']:
+        # Arredondar colunas de ponto flutuante
+        for col in ['Média de Meses', 'Mediana de Meses', 'Mínimo de Meses', 'Máximo de Meses']:
             time_metrics[col] = time_metrics[col].round(1)
         
         return time_metrics
