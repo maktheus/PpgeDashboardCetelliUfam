@@ -127,55 +127,55 @@ def generate_pdf_report(df, title, filename=None):
     
     # Generate download link
     b64 = base64.b64encode(pdf_data).decode()
-    href = f'<a href="data:application/pdf;base64,{b64}" download="{filename}.pdf">Download PDF Report</a>'
+    href = f'<a href="data:application/pdf;base64,{b64}" download="{filename}.pdf">Baixar Relatório PDF</a>'
     
     return href
 
 def render_report_options(key_prefix="default"):
     """
-    Render report generation options
+    Renderiza opções para geração de relatórios
     
-    Parameters:
-    - key_prefix: Prefix for the session state keys to make them unique
+    Parâmetros:
+    - key_prefix: Prefixo para as chaves de estado da sessão para torná-las únicas
     
-    Returns:
-    - report_title: User inputted report title
-    - report_filename: User inputted filename
-    - report_type: Selected report type
-    - selected_columns: Selected columns to include
+    Retorna:
+    - report_title: Título do relatório inserido pelo usuário
+    - report_filename: Nome do arquivo inserido pelo usuário
+    - report_type: Tipo de relatório selecionado
+    - selected_columns: Colunas selecionadas para incluir
     """
-    st.subheader("Report Options")
+    st.subheader("Opções de Relatório")
     
-    # Report title and filename
+    # Título e nome do arquivo do relatório
     report_title = st.text_input(
-        "Report Title", 
-        "PPGE KPI Report",
+        "Título do Relatório", 
+        "Relatório KPI PPGE",
         key=f"{key_prefix}_report_title"
     )
     report_filename = st.text_input(
-        "Filename (without extension)", 
-        value=f"ppge_report_{datetime.now().strftime('%Y%m%d')}",
+        "Nome do Arquivo (sem extensão)", 
+        value=f"relatorio_ppge_{datetime.now().strftime('%Y%m%d')}",
         key=f"{key_prefix}_report_filename"
     )
     
-    # Report type selection
+    # Seleção do tipo de relatório
     report_type = st.selectbox(
-        "Report Format", 
+        "Formato do Relatório", 
         ["Excel", "CSV", "PDF"],
         key=f"{key_prefix}_report_format"
     )
     
-    # Column selection
+    # Seleção de colunas
     cols = st.session_state.get('report_columns', [])
     if cols:
         selected_columns = st.multiselect(
-            "Select Columns to Include",
+            "Selecione as Colunas para Incluir",
             options=cols,
             default=cols,
             key=f"{key_prefix}_selected_columns"
         )
     else:
         selected_columns = []
-        st.info("No columns available. Please load data first.")
+        st.info("Nenhuma coluna disponível. Por favor, carregue os dados primeiro.")
     
     return report_title, report_filename, report_type, selected_columns
