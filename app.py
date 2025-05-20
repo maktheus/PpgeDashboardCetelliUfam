@@ -30,7 +30,7 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 # Configure the app
 st.set_page_config(
-    page_title="PPGE KPI Dashboard",
+    page_title="PPGEE KPI Dashboard",
     page_icon="📊",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -56,7 +56,7 @@ def main():
     
     # Add sidebar filters (moved from the sidebar.py module)
     with st.sidebar:
-        st.title("PPGE KPI Dashboard")
+        st.title("PPGEE KPI Dashboard")
         
         # Display logo
         if os.path.exists("generated-icon.png"):
@@ -119,7 +119,7 @@ def main():
             st.session_state.selected_kpi = None
     
     # Main content area
-    st.title("📊 PPGE KPI Dashboard")
+    st.title("📊 PPGEE KPI Dashboard")
     
     # Get filtered data
     df = DataManager.get_data()

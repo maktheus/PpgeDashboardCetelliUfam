@@ -101,7 +101,7 @@ def render_data_mapping_tool(df):
     """
     st.subheader("Map Data Columns")
     
-    # Define expected columns for the PPGE KPI dashboard
+    # Define expected columns for the PPGEE KPI dashboard
     expected_columns = {
         'student_id': 'Student ID',
         'student_name': 'Student Name',

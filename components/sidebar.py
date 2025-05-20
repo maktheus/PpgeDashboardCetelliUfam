@@ -37,7 +37,7 @@ def render_sidebar():
     """Renders the sidebar with navigation and filtering options"""
     
     with st.sidebar:
-        st.title("PPGE KPI Dashboard")
+        st.title("PPGEE KPI Dashboard")
         
         # Usar o ícone gerado
         if os.path.exists("generated-icon.png"):
