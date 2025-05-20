@@ -7,7 +7,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 # Set the page configuration
 st.set_page_config(
-    page_title="Gerador de Relatórios | PPGE KPI Dashboard",
+    page_title="Gerador de Relatórios | PPGEE KPI Dashboard",
     page_icon="📝",
     layout="wide",
 )
