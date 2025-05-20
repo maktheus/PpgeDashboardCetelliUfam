@@ -416,30 +416,30 @@ def generate_time_to_defense_report(df):
         return time_metrics
 
 def generate_publication_report(df):
-    """Generate publication analysis report data"""
+    """Gera dados de relatório de análise de publicações"""
     
     if 'publications' not in df.columns:
         return pd.DataFrame()
     
-    # Create a basic report with publication stats by program
+    # Criar um relatório básico com estatísticas de publicação por programa
     if 'program' in df.columns:
         pub_stats = df.groupby('program')['publications'].agg(
             ['count', 'sum', 'mean', 'median', 'max']).reset_index()
         
-        pub_stats.columns = ['Program', 'Number of Students', 'Total Publications', 
-                            'Average Publications', 'Median Publications', 'Maximum Publications']
+        pub_stats.columns = ['Programa', 'Número de Estudantes', 'Total de Publicações', 
+                            'Média de Publicações', 'Mediana de Publicações', 'Máximo de Publicações']
         
-        # Round floating point columns
-        for col in ['Average Publications', 'Median Publications']:
+        # Arredondar colunas de ponto flutuante
+        for col in ['Média de Publicações', 'Mediana de Publicações']:
             pub_stats[col] = pub_stats[col].round(2)
         
         return pub_stats
     else:
-        # If program not available, create an overall summary
+        # Se o programa não estiver disponível, criar um resumo geral
         pub_stats = pd.DataFrame({
-            'Metric': ['Total Students', 'Total Publications', 'Average Publications', 
-                      'Median Publications', 'Maximum Publications'],
-            'Value': [
+            'Métrica': ['Total de Estudantes', 'Total de Publicações', 'Média de Publicações', 
+                      'Mediana de Publicações', 'Máximo de Publicações'],
+            'Valor': [
                 len(df),
                 df['publications'].sum(),
                 df['publications'].mean().round(2),
@@ -451,82 +451,82 @@ def generate_publication_report(df):
         return pub_stats
 
 def generate_defense_rates_report(df):
-    """Generate defense success rates report data"""
+    """Gera dados de relatório de taxas de sucesso em defesas"""
     
     if 'defense_status' not in df.columns:
         return pd.DataFrame()
     
-    # Calculate defense rates by program and year if available
+    # Calcular taxas de defesa por programa e ano, se disponível
     if 'program' in df.columns and 'defense_date' in df.columns:
-        # Only include students with defense data
+        # Incluir apenas estudantes com dados de defesa
         defended_df = df[df['defense_status'].notna()].copy()
         
         if defended_df.empty:
             return pd.DataFrame()
         
-        # Extract defense year
+        # Extrair ano de defesa
         defended_df['defense_year'] = pd.to_datetime(defended_df['defense_date']).dt.year
         
-        # Count defenses and successes by program and year
-        defense_counts = defended_df.groupby(['program', 'defense_year']).size().reset_index(name='total_defenses')
+        # Contar defesas e sucessos por programa e ano
+        defense_counts = defended_df.groupby(['program', 'defense_year']).size().reset_index(name='total_defesas')
         
         success_counts = defended_df[defended_df['defense_status'] == 'Approved'].groupby(
-            ['program', 'defense_year']).size().reset_index(name='successful_defenses')
+            ['program', 'defense_year']).size().reset_index(name='defesas_com_sucesso')
         
-        # Merge the data
+        # Mesclar os dados
         defense_rates = defense_counts.merge(success_counts, on=['program', 'defense_year'], how='left')
-        defense_rates['successful_defenses'] = defense_rates['successful_defenses'].fillna(0).astype(int)
+        defense_rates['defesas_com_sucesso'] = defense_rates['defesas_com_sucesso'].fillna(0).astype(int)
         
-        # Calculate success rate
-        defense_rates['success_rate_pct'] = (defense_rates['successful_defenses'] / 
-                                           defense_rates['total_defenses'] * 100).round(1)
+        # Calcular taxa de sucesso
+        defense_rates['taxa_sucesso_pct'] = (defense_rates['defesas_com_sucesso'] / 
+                                           defense_rates['total_defesas'] * 100).round(1)
         
-        # Rename columns for report
-        defense_rates.columns = ['Program', 'Year', 'Total Defenses', 'Successful Defenses', 'Success Rate (%)']
+        # Renomear colunas para o relatório
+        defense_rates.columns = ['Programa', 'Ano', 'Total de Defesas', 'Defesas com Sucesso', 'Taxa de Sucesso (%)']
         
         return defense_rates
     else:
-        # If detailed data not available, create a simple report
+        # Se dados detalhados não estiverem disponíveis, criar um relatório simples
         defended_df = df[df['defense_status'].notna()].copy()
         
         if defended_df.empty:
             return pd.DataFrame()
         
-        # Count defenses and successes by program
-        defense_counts = defended_df.groupby('program').size().reset_index(name='total_defenses')
+        # Contar defesas e sucessos por programa
+        defense_counts = defended_df.groupby('program').size().reset_index(name='total_defesas')
         
         success_counts = defended_df[defended_df['defense_status'] == 'Approved'].groupby(
-            'program').size().reset_index(name='successful_defenses')
+            'program').size().reset_index(name='defesas_com_sucesso')
         
-        # Merge the data
+        # Mesclar os dados
         defense_rates = defense_counts.merge(success_counts, on='program', how='left')
-        defense_rates['successful_defenses'] = defense_rates['successful_defenses'].fillna(0).astype(int)
+        defense_rates['defesas_com_sucesso'] = defense_rates['defesas_com_sucesso'].fillna(0).astype(int)
         
-        # Calculate success rate
-        defense_rates['success_rate_pct'] = (defense_rates['successful_defenses'] / 
-                                           defense_rates['total_defenses'] * 100).round(1)
+        # Calcular taxa de sucesso
+        defense_rates['taxa_sucesso_pct'] = (defense_rates['defesas_com_sucesso'] / 
+                                           defense_rates['total_defesas'] * 100).round(1)
         
-        # Rename columns for report
-        defense_rates.columns = ['Program', 'Total Defenses', 'Successful Defenses', 'Success Rate (%)']
+        # Renomear colunas para o relatório
+        defense_rates.columns = ['Programa', 'Total de Defesas', 'Defesas com Sucesso', 'Taxa de Sucesso (%)']
         
         return defense_rates
 
 def generate_enrollment_trends_report(df):
-    """Generate enrollment trends report data"""
+    """Gera dados de relatório de tendências de matrícula"""
     
     if 'enrollment_date' not in df.columns:
         return pd.DataFrame()
     
-    # Extract enrollment year and month
+    # Extrair ano e mês de matrícula
     df_copy = df.copy()
     df_copy['enrollment_year'] = pd.to_datetime(df_copy['enrollment_date']).dt.year
     df_copy['enrollment_month'] = pd.to_datetime(df_copy['enrollment_date']).dt.month
     
-    # Create a yearly report
-    yearly_enrollments = df_copy.groupby('enrollment_year').size().reset_index(name='total_enrollments')
-    yearly_enrollments.columns = ['Year', 'Total Enrollments']
+    # Criar um relatório anual
+    yearly_enrollments = df_copy.groupby('enrollment_year').size().reset_index(name='total_matriculas')
+    yearly_enrollments.columns = ['Ano', 'Total de Matrículas']
     
-    # Add program breakdown if available
+    # Adicionar detalhamento por programa, se disponível
     if 'program' in df_copy.columns:
         program_pivot = df_copy.pivot_table(
             index='enrollment_year',
@@ -537,10 +537,10 @@ def generate_enrollment_trends_report(df):
         ).reset_index()
         
         program_pivot.columns.name = None
-        program_pivot = program_pivot.rename(columns={'enrollment_year': 'Year'})
+        program_pivot = program_pivot.rename(columns={'enrollment_year': 'Ano'})
         
-        # Merge with yearly enrollments
-        enrollment_report = program_pivot.merge(yearly_enrollments, on='Year')
+        # Mesclar com matrículas anuais
+        enrollment_report = program_pivot.merge(yearly_enrollments, on='Ano')
         
         return enrollment_report
     else:
