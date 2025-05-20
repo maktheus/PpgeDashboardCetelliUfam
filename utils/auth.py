@@ -1,4 +1,3 @@
-import streamlit as st
 import pyotp
 import base64
 import os
@@ -37,21 +36,25 @@ def get_current_totp():
 
 def is_authenticated():
     """Verifica se o usuário está autenticado"""
+    import streamlit as st
     return st.session_state.get('authenticated', False)
 
 def authenticate():
     """Define o estado de autenticação como verdadeiro"""
+    import streamlit as st
     st.session_state.authenticated = True
     st.session_state.auth_time = datetime.now()
 
 def logout():
     """Remove o estado de autenticação"""
+    import streamlit as st
     st.session_state.authenticated = False
     if 'auth_time' in st.session_state:
         del st.session_state.auth_time
 
 def check_auth_expiry(expiry_minutes=30):
     """Verifica se a autenticação expirou"""
+    import streamlit as st
     if not is_authenticated():
         return False
     
@@ -70,6 +73,8 @@ def check_auth_expiry(expiry_minutes=30):
 def require_authentication(page_function):
     """Decorator para páginas que requerem autenticação"""
     def wrapper(*args, **kwargs):
+        import streamlit as st
+        
         if not check_auth_expiry():
             show_auth_screen()
         else:
@@ -89,6 +94,10 @@ def require_authentication(page_function):
 
 def show_auth_screen():
     """Exibe tela de autenticação com TOTP"""
+    import streamlit as st
+    import qrcode
+    from io import BytesIO
+    
     st.title("🔐 Acesso Restrito: Gerenciamento de Dados")
     
     st.write("Esta seção é restrita e requer autenticação por código de verificação.")
@@ -98,19 +107,19 @@ def show_auth_screen():
         st.write("""
         1. Para acessar esta página, você precisa ter um aplicativo de autenticação como Google Authenticator, 
            Authy ou Microsoft Authenticator.
-        2. Escaneie o QR code abaixo com seu aplicativo, ou configure manualmente usando a chave secreta.
+        2. Configure manualmente usando a chave secreta abaixo.
         3. Digite o código de 6 dígitos fornecido pelo aplicativo para acessar a página.
         """)
         
-        # QR Code para configuração
-        qr_uri = get_totp_uri("admin@ppgeedashboard")
+        # Chave para configuração
+        totp_key = base64.b32encode(SECRET_KEY.encode()).decode('utf-8')
         st.markdown(f"""
         #### Configure seu Autenticador:
         
-        **Google Authenticator**: Escaneie o QR Code ou adicione manualmente a chave.
+        **Google Authenticator**: Adicione uma nova conta e insira esta chave:
         
         ```
-        {base64.b32encode(SECRET_KEY.encode()).decode('utf-8')}
+        {totp_key}
         ```
         
         [Link para Download do Google Authenticator](https://play.google.com/store/apps/details?id=com.google.android.apps.authenticator2)
@@ -129,6 +138,8 @@ def show_auth_screen():
             else:
                 st.error("Código inválido. Tente novamente.")
     
-    # Para administradores (comentado em produção)
-    # if st.checkbox("Exibir código atual (apenas para admins)"):
-    #     st.code(get_current_totp())
+    # Para fins de teste/depuração - exibir código atual
+    if st.checkbox("Exibir código atual para testes"):
+        current_code = get_current_totp()
+        st.code(f"Código atual: {current_code}")
+        st.warning("Esta opção deve ser removida em ambiente de produção!")

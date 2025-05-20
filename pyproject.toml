@@ -10,6 +10,7 @@ dependencies = [
     "pandas>=2.2.3",
     "plotly>=6.0.1",
     "pyotp>=2.9.0",
+    "qrcode>=8.2",
     "reportlab>=4.4.0",
     "streamlit>=1.45.0",
 ]

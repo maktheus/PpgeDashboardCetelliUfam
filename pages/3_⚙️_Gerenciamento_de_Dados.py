@@ -19,8 +19,14 @@ if 'selected_year' not in st.session_state:
 if 'selected_program' not in st.session_state:
     st.session_state.selected_program = 'All'
 
-# Import our modules
+# Importar módulos necessários
 from pages_backup.data_management import render_page
+from utils.auth import require_authentication
 
-# Render the page content
-render_page()
+# Aplicar autenticação à página de gerenciamento de dados
+@require_authentication
+def protected_render_page():
+    render_page()
+
+# Renderizar a página com proteção de autenticação
+protected_render_page()
