@@ -3,6 +3,7 @@ import pandas as pd
 import io
 import datetime
 import json
+from utils.database import get_table_type_mapping
 
 def render_file_uploader():
     """
@@ -11,6 +12,7 @@ def render_file_uploader():
     Returns:
     - uploaded_file: File object or None if no file was uploaded
     - file_type: Detected file type or None
+    - table_type: Selected table type or None
     """
     st.subheader("Import Data")
     
@@ -30,8 +32,18 @@ def render_file_uploader():
             file_type = 'csv'
         elif file_extension == 'json':
             file_type = 'json'
+        
+        # Table type selection
+        table_types = list(get_table_type_mapping().keys())
+        table_type = st.selectbox(
+            "Select table type for this data:",
+            table_types,
+            help="Choose the type of data this file contains. This determines which database table the data will be stored in."
+        )
+    else:
+        table_type = None
     
-    return uploaded_file, file_type
+    return uploaded_file, file_type, table_type
 
 def process_uploaded_file(uploaded_file, file_type):
     """
@@ -157,23 +169,42 @@ def render_data_mapping_tool(df):
     
     return mapped_df, mapping_applied
 
-def save_imported_data(df):
+def save_imported_data(df, filename, file_type, table_type):
     """
-    Save imported and processed data
+    Save imported and processed data to PostgreSQL database
     
     Parameters:
     - df: DataFrame to save
+    - filename: Name of the uploaded file
+    - file_type: Type of file (excel, csv, etc.)
+    - table_type: Type of table the data belongs to
     
     Returns:
     - success: Boolean indicating if the save was successful
     """
-    # In a real application, this would save to a database
-    # For this Streamlit app, we'll store in session state
+    from utils.database import register_uploaded_file, save_df_to_database, get_table_type_mapping
     
-    # Store the DataFrame in session state
-    st.session_state['imported_data'] = df
+    # Get table name for selected table type
+    table_mapping = get_table_type_mapping()
+    if table_type not in table_mapping:
+        st.error(f"Unknown table type: {table_type}")
+        return False
     
-    # Store the import timestamp
-    st.session_state['data_import_timestamp'] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    table_name = table_mapping[table_type]
     
-    return True
+    # Register uploaded file
+    file_id = register_uploaded_file(filename, file_type, table_type)
+    if file_id is None:
+        st.error("Failed to register uploaded file")
+        return False
+    
+    # Save data to appropriate table
+    success = save_df_to_database(df, table_name, file_id)
+    
+    if success:
+        # Also store in session state for immediate use
+        st.session_state['imported_data'] = df
+        st.session_state['data_import_timestamp'] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        st.session_state['imported_table_type'] = table_type
+    
+    return success
