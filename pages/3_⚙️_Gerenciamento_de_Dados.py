@@ -43,6 +43,10 @@ def render_import_section():
     uploaded_file, file_type, table_type = render_file_uploader()
     
     if uploaded_file is not None:
+        # Store selected table type in session state for use in the mapping tool
+        if table_type:
+            st.session_state['selected_table_type'] = table_type
+        
         # Process uploaded file
         imported_df, error_message = process_uploaded_file(uploaded_file, file_type)
         

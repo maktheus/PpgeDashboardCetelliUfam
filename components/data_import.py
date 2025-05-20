@@ -113,20 +113,56 @@ def render_data_mapping_tool(df):
     """
     st.subheader("Map Data Columns")
     
-    # Define expected columns for the PPGEE KPI dashboard
-    expected_columns = {
-        'student_id': 'Student ID',
-        'student_name': 'Student Name',
-        'program': 'Program (Masters/Doctorate)',
-        'enrollment_date': 'Enrollment Date',
-        'defense_date': 'Defense Date',
-        'defense_status': 'Defense Status (Approved/Failed)',
-        'advisor_id': 'Advisor ID',
-        'advisor_name': 'Advisor Name',
-        'department': 'Department',
-        'research_area': 'Research Area',
-        'publications': 'Number of Publications'
-    }
+    # Get table type from session state or use default mapping
+    table_type = st.session_state.get('selected_table_type', None)
+    
+    # Define expected columns based on table type
+    if table_type in ['EGRESSOS-M-INFOS', 'EGRESSOS-D-INFOS']:
+        expected_columns = {
+            'student_id': 'ID do Aluno',
+            'student_name': 'Nome do Aluno',
+            'degree_type': 'Tipo de Titulação (Mestrado/Doutorado)',
+            'continuation_level': 'Continuação da Formação em Nível Superior',
+            'employment_status': 'Situação Profissional',
+            'geographic_region': 'Região Geográfica do País'
+        }
+    elif table_type in ['EGRESSOS-MESTRADO', 'EGRESSOS-DOUTORADO']:
+        expected_columns = {
+            'student_id': 'ID do Aluno',
+            'student_name': 'Nome do Aluno',
+            'enrollment_date': 'Data de Ingresso',
+            'defense_date': 'Data de Defesa',
+            'advisor_name': 'Nome do Orientador',
+            'program': 'Programa (Mestrado/Doutorado)'
+        }
+    elif table_type in ['Melhores-Teses', 'Melhores-Dissertacoes']:
+        expected_columns = {
+            'student_id': 'ID do Aluno',
+            'student_name': 'Nome do Aluno',
+            'title': 'Título do Trabalho',
+            'defense_date': 'Data de Defesa',
+            'advisor_name': 'Nome do Orientador',
+            'justification': 'Justificativa da Indicação',
+            'originality_score': 'Nota de Originalidade (0-10)',
+            'relevance_score': 'Nota de Relevância (0-10)',
+            'innovation_potential': 'Potencial de Inovação (0-10)',
+            'work_type': 'Tipo de Trabalho (Tese/Dissertação)'
+        }
+    else:
+        # Default columns for any other type or when table_type is None
+        expected_columns = {
+            'student_id': 'ID do Aluno',
+            'student_name': 'Nome do Aluno',
+            'program': 'Programa (Mestrado/Doutorado)',
+            'enrollment_date': 'Data de Ingresso',
+            'defense_date': 'Data de Defesa',
+            'defense_status': 'Status da Defesa (Aprovado/Reprovado)',
+            'advisor_id': 'ID do Orientador',
+            'advisor_name': 'Nome do Orientador',
+            'department': 'Departamento',
+            'research_area': 'Área de Pesquisa',
+            'publications': 'Número de Publicações'
+        }
     
     # Create mapping UI
     st.write("Map your data columns to the expected format:")
