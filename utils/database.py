@@ -55,9 +55,9 @@ def init_database():
             
             # Create tables for different data types
             
-            # Table for EGRESSOS-M-INFOS and EGRESSOS-D-INFOS
+            # Table for EGRESSOS-M-INFOS
             cursor.execute("""
-            CREATE TABLE IF NOT EXISTS egressos_infos (
+            CREATE TABLE IF NOT EXISTS egressos_m_infos (
                 id SERIAL PRIMARY KEY,
                 student_id TEXT,
                 student_name TEXT,
@@ -69,9 +69,23 @@ def init_database():
             )
             """)
             
-            # Table for EGRESSOS-MESTRADO and EGRESSOS-DOUTORADO
+            # Table for EGRESSOS-D-INFOS
             cursor.execute("""
-            CREATE TABLE IF NOT EXISTS egressos_programa (
+            CREATE TABLE IF NOT EXISTS egressos_d_infos (
+                id SERIAL PRIMARY KEY,
+                student_id TEXT,
+                student_name TEXT,
+                degree_type TEXT,
+                continuation_level TEXT,
+                employment_status TEXT,
+                geographic_region TEXT,
+                upload_id INTEGER REFERENCES uploaded_files(id)
+            )
+            """)
+            
+            # Table for EGRESSOS-MESTRADO
+            cursor.execute("""
+            CREATE TABLE IF NOT EXISTS egressos_mestrado (
                 id SERIAL PRIMARY KEY,
                 student_id TEXT,
                 student_name TEXT,
@@ -83,9 +97,23 @@ def init_database():
             )
             """)
             
-            # Table for Melhores-Teses and Melhores-Dissertacoes
+            # Table for EGRESSOS-DOUTORADO
             cursor.execute("""
-            CREATE TABLE IF NOT EXISTS melhores_trabalhos (
+            CREATE TABLE IF NOT EXISTS egressos_doutorado (
+                id SERIAL PRIMARY KEY,
+                student_id TEXT,
+                student_name TEXT,
+                enrollment_date DATE,
+                defense_date DATE,
+                advisor_name TEXT,
+                program TEXT,
+                upload_id INTEGER REFERENCES uploaded_files(id)
+            )
+            """)
+            
+            # Table for Melhores-Teses
+            cursor.execute("""
+            CREATE TABLE IF NOT EXISTS melhores_teses (
                 id SERIAL PRIMARY KEY,
                 student_id TEXT,
                 student_name TEXT,
@@ -96,7 +124,23 @@ def init_database():
                 originality_score NUMERIC,
                 relevance_score NUMERIC,
                 innovation_potential NUMERIC,
-                work_type TEXT,
+                upload_id INTEGER REFERENCES uploaded_files(id)
+            )
+            """)
+            
+            # Table for Melhores-Dissertacoes
+            cursor.execute("""
+            CREATE TABLE IF NOT EXISTS melhores_dissertacoes (
+                id SERIAL PRIMARY KEY,
+                student_id TEXT,
+                student_name TEXT,
+                title TEXT,
+                defense_date DATE,
+                advisor_name TEXT,
+                justification TEXT,
+                originality_score NUMERIC,
+                relevance_score NUMERIC,
+                innovation_potential NUMERIC,
                 upload_id INTEGER REFERENCES uploaded_files(id)
             )
             """)
@@ -166,12 +210,12 @@ def get_table_type_mapping():
     - Dictionary with table type to table name mapping
     """
     return {
-        "EGRESSOS-M-INFOS": "egressos_infos",
-        "EGRESSOS-D-INFOS": "egressos_infos",
-        "EGRESSOS-MESTRADO": "egressos_programa",
-        "EGRESSOS-DOUTORADO": "egressos_programa",
-        "Melhores-Teses": "melhores_trabalhos",
-        "Melhores-Dissertacoes": "melhores_trabalhos"
+        "EGRESSOS-M-INFOS": "egressos_m_infos",
+        "EGRESSOS-D-INFOS": "egressos_d_infos",
+        "EGRESSOS-MESTRADO": "egressos_mestrado",
+        "EGRESSOS-DOUTORADO": "egressos_doutorado",
+        "Melhores-Teses": "melhores_teses",
+        "Melhores-Dissertacoes": "melhores_dissertacoes"
     }
 
 def register_uploaded_file(filename, file_type, table_type):
