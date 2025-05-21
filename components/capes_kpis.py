@@ -9,33 +9,96 @@ def render_capes_kpi_dashboard():
     """
     Renderiza o dashboard de KPIs da CAPES
     """
-    st.header("🎯 Dashboard de Indicadores CAPES - Engenharias IV")
+    st.title("🎯 Dashboard de Indicadores CAPES - Engenharias IV")
+    
+    st.markdown("""
+    <div class="help-text">
+    Este dashboard exibe os principais indicadores utilizados na avaliação de programas de pós-graduação
+    pela CAPES na área de Engenharias IV. Os indicadores estão organizados em 5 categorias principais.
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # Adicionar explicação sobre os dados
+    with st.expander("ℹ️ Sobre os Indicadores CAPES"):
+        st.markdown("""
+        ### Indicadores de Avaliação CAPES para Engenharias IV
+        
+        Os indicadores exibidos neste dashboard são baseados nos critérios de avaliação da CAPES para programas 
+        de pós-graduação na área de Engenharias IV. Eles são utilizados para avaliar diferentes aspectos do programa,
+        como qualidade do corpo docente, formação discente, produção intelectual e impacto social.
+        
+        As categorias principais são:
+        - **Corpo Docente**: Avaliação da qualificação e dedicação dos docentes
+        - **Formação Discente**: Métricas relacionadas à formação e produção dos alunos
+        - **Egressos**: Acompanhamento da trajetória profissional e acadêmica dos ex-alunos
+        - **Produção Intelectual**: Qualidade e quantidade da produção científica
+        - **Disciplinas**: Oferta e aproveitamento das disciplinas
+        
+        Para mais informações sobre cada indicador, consulte a documentação oficial da CAPES.
+        """)
+        
+        st.info("Os valores exibidos são calculados com base nos dados carregados no sistema. Para indicadores mais precisos, é importante manter a base de dados atualizada.")
+        
     
     st.markdown("""
     <style>
     .kpi-card {
-        padding: 1rem;
-        border-radius: 0.5rem;
-        margin-bottom: 1rem;
-        background-color: #f8f9fa;
-        border-left: 4px solid #007bff;
+        padding: 1.25rem;
+        border-radius: 0.6rem;
+        margin-bottom: 1.2rem;
+        background-color: #ffffff;
+        border-left: 5px solid #007bff;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .kpi-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
     }
     .kpi-card .value {
-        font-size: 1.8rem;
+        font-size: 2rem;
         font-weight: bold;
         color: #007bff;
+        margin-bottom: 0.3rem;
     }
     .kpi-card .title {
-        font-size: 1rem;
-        color: #495057;
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 0.5rem;
     }
     .kpi-card .description {
-        font-size: 0.85rem;
+        font-size: 0.9rem;
         color: #6c757d;
+        line-height: 1.4;
     }
     .kpi-section {
-        padding: 1rem;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        background-color: #f8f9fa;
+        border-radius: 0.8rem;
+    }
+    .indicator-category {
+        margin-top: 2rem;
         margin-bottom: 1rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid #e9ecef;
+        color: #0066cc;
+    }
+    .chart-container {
+        background-color: white;
+        padding: 1rem;
+        border-radius: 0.6rem;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        margin-bottom: 1.5rem;
+    }
+    .help-text {
+        background-color: #e7f3ff;
+        padding: 0.8rem;
+        border-radius: 0.5rem;
+        margin-top: 0.5rem;
+        font-size: 0.9rem;
+        border-left: 4px solid #007bff;
     }
     </style>
     """, unsafe_allow_html=True)

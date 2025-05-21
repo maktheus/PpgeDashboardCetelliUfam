@@ -16,9 +16,8 @@ def get_all_data_from_table(table_name):
     connection = get_connection()
     if connection:
         try:
-            query = sql.SQL("""
-            SELECT * FROM {}
-            """).format(sql.Identifier(table_name))
+            # Utilizando string formatada diretamente para evitar problemas com pd.read_sql_query
+            query = f"SELECT * FROM {table_name}"
             
             df = pd.read_sql_query(query, connection)
             connection.close()
