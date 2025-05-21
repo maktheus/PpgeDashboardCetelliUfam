@@ -28,6 +28,10 @@ if os.environ.get('DEPLOYMENT_HEALTH_CHECK') == '1':
 # Add the current directory to the path so we can import modules
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
+# Initialize language setting if not present
+if 'language' not in st.session_state:
+    st.session_state.language = 'pt'
+
 # Configure the app
 st.set_page_config(
     page_title="PPGEE KPI Dashboard",
@@ -41,6 +45,7 @@ from data.data_manager import DataManager
 from components.kpi_cards import render_kpi_summary, render_detailed_kpi_cards
 from utils.calculations import calculate_time_to_defense
 from components.charts import render_time_series_chart, render_bar_chart, render_pie_chart, render_histogram
+from utils.translations import get_translation
 
 # Main app page - this will be the home page
 def main():
@@ -118,8 +123,11 @@ def main():
         if current_view != "kpi_dashboard" and st.session_state.selected_kpi is not None:
             st.session_state.selected_kpi = None
     
+    # Get the current language
+    lang = st.session_state.language
+    
     # Main content area
-    st.title("📊 PPGEE KPI Dashboard")
+    st.title(get_translation("title", lang))
     
     # Get filtered data
     df = DataManager.get_data()
@@ -130,15 +138,17 @@ def main():
     
     # Show filter information
     st.info(
-        f"Visualizando dados para: Ano = {st.session_state.selected_year}, "
-        f"Programa = {st.session_state.selected_program}"
+        get_translation("current_filter_info", lang).format(
+            st.session_state.selected_year, 
+            st.session_state.selected_program
+        )
     )
     
-    # Usar tabs para melhorar o fluxo em vez do sidebar
+    # Use tabs to improve flow instead of sidebar
     main_tabs = st.tabs([
-        "📊 Visão Geral", 
-        "🎯 Indicadores CAPES", 
-        "📈 Análises Detalhadas"
+        get_translation("overview_tab", lang), 
+        get_translation("capes_indicators_tab", lang), 
+        get_translation("detailed_analysis_tab", lang)
     ])
     
     # Tab 1: KPI Dashboard / Visão Geral
@@ -266,9 +276,12 @@ def render_interactive_kpi_cards(df):
     # Import the custom card component
     from components.kpi_cards import metric_card
     
+    # Get the current language
+    lang = st.session_state.language
+    
     # Main KPI layout
-    st.markdown("## Principais Indicadores de Desempenho (KPIs)")
-    st.caption("Clique em um KPI para visualizar gráficos e análises detalhadas")
+    st.markdown(f"## {get_translation('main_kpi_title', lang)}")
+    st.caption(get_translation('kpi_click_instruction', lang))
     
     # First row - main KPIs
     col1, col2, col3, col4 = st.columns(4)
@@ -277,11 +290,11 @@ def render_interactive_kpi_cards(df):
         students_card = st.container()
         with students_card:
             metric_card(
-                title="Total de Alunos",
+                title=get_translation('total_students', lang),
                 value=total_students,
-                help_text="Número total de alunos no programa"
+                help_text=get_translation('students_help', lang)
             )
-            if st.button("Ver Detalhes", key="btn_students"):
+            if st.button(get_translation('view_details', lang), key="btn_students"):
                 st.session_state.selected_kpi = "students"
                 st.rerun()
     
@@ -289,11 +302,11 @@ def render_interactive_kpi_cards(df):
         faculty_card = st.container()
         with faculty_card:
             metric_card(
-                title="Total de Docentes",
+                title=get_translation('total_faculty', lang),
                 value=total_faculty,
-                help_text="Número total de docentes orientando alunos"
+                help_text=get_translation('faculty_help', lang)
             )
-            if st.button("Ver Detalhes", key="btn_faculty"):
+            if st.button(get_translation('view_details', lang), key="btn_faculty"):
                 st.session_state.selected_kpi = "faculty"
                 st.rerun()
     
@@ -301,12 +314,12 @@ def render_interactive_kpi_cards(df):
         defense_time_card = st.container()
         with defense_time_card:
             metric_card(
-                title="Tempo Médio até Defesa",
+                title=get_translation('avg_defense_time', lang),
                 value=avg_time_to_defense,
-                suffix=" meses",
-                help_text="Tempo médio desde o ingresso até a defesa"
+                suffix=f" {get_translation('months', lang)}",
+                help_text=get_translation('defense_time_help', lang)
             )
-            if st.button("Ver Detalhes", key="btn_defense_time"):
+            if st.button(get_translation('view_details', lang), key="btn_defense_time"):
                 st.session_state.selected_kpi = "defense_time"
                 st.rerun()
     
@@ -314,65 +327,65 @@ def render_interactive_kpi_cards(df):
         success_rate_card = st.container()
         with success_rate_card:
             metric_card(
-                title="Taxa de Sucesso na Defesa",
+                title=get_translation('defense_success_rate', lang),
                 value=defense_success_rate,
-                suffix="%",
-                help_text="Porcentagem de defesas com aprovação"
+                suffix=get_translation('percent', lang),
+                help_text=get_translation('success_rate_help', lang)
             )
-            if st.button("Ver Detalhes", key="btn_success_rate"):
+            if st.button(get_translation('view_details', lang), key="btn_success_rate"):
                 st.session_state.selected_kpi = "success_rate"
                 st.rerun()
     
     # Second row - Time-related KPIs
-    st.markdown("### Métricas de Tempo")
+    st.markdown(f"### {get_translation('time_metrics', lang)}")
     col1, col2, col3, col4 = st.columns(4)
     
     with col1:
         metric_card(
-            title="Mediana do Tempo até Defesa",
+            title=get_translation('median_defense_time', lang),
             value=median_time_to_defense,
-            suffix=" meses",
-            help_text="Mediana do tempo desde o ingresso até a defesa (valor central)"
+            suffix=f" {get_translation('months', lang)}",
+            help_text=get_translation('median_time_help', lang)
         )
     
     with col2:
         metric_card(
-            title="Mestrado (Tempo Médio)",
+            title=get_translation('masters_avg_time', lang),
             value=masters_time,
-            suffix=" meses",
-            help_text="Tempo médio até a defesa para alunos de Mestrado"
+            suffix=f" {get_translation('months', lang)}",
+            help_text=get_translation('masters_time_help', lang)
         )
     
     with col3:
         metric_card(
-            title="Doutorado (Tempo Médio)",
+            title=get_translation('doctorate_avg_time', lang),
             value=doctorate_time,
-            suffix=" meses",
-            help_text="Tempo médio até a defesa para alunos de Doutorado"
+            suffix=f" {get_translation('months', lang)}",
+            help_text=get_translation('doctorate_time_help', lang)
         )
     
     with col4:
         metric_card(
-            title="Variação do Tempo (Desvio)",
+            title=get_translation('time_variation', lang),
             value=std_time_to_defense,
-            suffix=" meses",
-            help_text="Desvio padrão do tempo até a defesa (medida de variabilidade)"
+            suffix=f" {get_translation('months', lang)}",
+            help_text=get_translation('time_variation_help', lang)
         )
     
     # Third row - Additional KPIs
-    st.markdown("### Métricas de Eficiência")
+    st.markdown(f"### {get_translation('efficiency_metrics', lang)}")
     col1, col2, col3, col4 = st.columns(4)
     
     with col1:
         efficiency_card = st.container()
         with efficiency_card:
             metric_card(
-                title="Eficiência de Tempo",
+                title=get_translation('time_efficiency', lang),
                 value=avg_time_efficiency,
-                suffix="%",
-                help_text="Proporção do tempo esperado vs. tempo real (maior = mais eficiente)"
+                suffix=get_translation('percent', lang),
+                help_text=get_translation('efficiency_help', lang)
             )
-            if st.button("Ver Detalhes", key="btn_efficiency"):
+            if st.button(get_translation('view_details', lang), key="btn_efficiency"):
                 st.session_state.selected_kpi = "efficiency"
                 st.rerun()
     
@@ -380,32 +393,32 @@ def render_interactive_kpi_cards(df):
         min_time_card = st.container()
         with min_time_card:
             metric_card(
-                title="Tempo Mínimo",
+                title=get_translation('min_time', lang),
                 value=min_time_to_defense,
-                suffix=" meses",
-                help_text="Menor tempo registrado para conclusão"
+                suffix=f" {get_translation('months', lang)}",
+                help_text=get_translation('min_time_help', lang)
             )
     
     with col3:
         max_time_card = st.container()
         with max_time_card:
             metric_card(
-                title="Tempo Máximo",
+                title=get_translation('max_time', lang),
                 value=max_time_to_defense,
-                suffix=" meses",
-                help_text="Maior tempo registrado para conclusão"
+                suffix=f" {get_translation('months', lang)}",
+                help_text=get_translation('max_time_help', lang)
             )
     
     with col4:
         completion_card = st.container()
         with completion_card:
             metric_card(
-                title="Taxa de Conclusão",
+                title=get_translation('completion_rate', lang),
                 value=defense_completion_rate,
-                suffix="%",
-                help_text="Porcentagem de alunos que concluíram a defesa"
+                suffix=get_translation('percent', lang),
+                help_text=get_translation('completion_help', lang)
             )
-            if st.button("Ver Detalhes", key="btn_completion"):
+            if st.button(get_translation('view_details', lang), key="btn_completion"):
                 st.session_state.selected_kpi = "completion"
                 st.rerun()
     
