@@ -134,26 +134,15 @@ def main():
         f"Programa = {st.session_state.selected_program}"
     )
     
-    # Atualizar opções de visualização para incluir indicadores CAPES
-    view_options = {
-        "KPI Dashboard": "kpi_dashboard",
-        "Indicadores CAPES": "capes_kpis",
-        "Visualizações Gerais": "visualizations"
-    }
+    # Usar tabs para melhorar o fluxo em vez do sidebar
+    main_tabs = st.tabs([
+        "📊 Visão Geral", 
+        "🎯 Indicadores CAPES", 
+        "📈 Análises Detalhadas"
+    ])
     
-    # Remover a declaração anterior do radio button
-    # e usar uma nova chave para evitar conflitos
-    selected_view = st.sidebar.radio(
-        "Escolher Visualização",
-        list(view_options.keys()),
-        key="main_view_selector",
-        index=0
-    )
-    
-    current_view = view_options[selected_view]
-    
-    # Render the selected view
-    if current_view == "kpi_dashboard":
+    # Tab 1: KPI Dashboard / Visão Geral
+    with main_tabs[0]:
         # If a specific KPI is selected, render its detailed view
         if st.session_state.selected_kpi is not None:
             render_kpi_detail_view(st.session_state.selected_kpi, df)
@@ -167,14 +156,15 @@ def main():
             # Render the detailed KPI cards with explanations
             render_detailed_kpi_cards(kpi_data)
     
-    elif current_view == "capes_kpis":
+    # Tab 2: Indicadores CAPES
+    with main_tabs[1]:
         # Renderizar o dashboard de indicadores CAPES
         from components.capes_kpis import render_capes_kpi_dashboard
         render_capes_kpi_dashboard()
-        
-    elif current_view == "visualizations":
-        # For visualization view, use the original overview page
-        st.subheader("Visualizações e Análises Detalhadas")
+    
+    # Tab 3: Visualizações Detalhadas    
+    with main_tabs[2]:
+        st.subheader("Análises e Visualizações Detalhadas")
         
         # Add the existing visualization components
         # This is done by calling a modified version of the render_page function

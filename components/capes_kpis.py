@@ -156,7 +156,21 @@ def render_kpi_category(category, kpi_list, kpis, kpi_descriptions):
     - kpis: Dicionário com valores de todos os KPIs
     - kpi_descriptions: Dicionário com descrições dos KPIs
     """
-    st.subheader(f"{category}")
+    st.markdown(f"<h3 class='indicator-category'>{category}</h3>", unsafe_allow_html=True)
+    
+    # Adicionar descrição para cada categoria
+    category_descriptions = {
+        "Corpo Docente": "Indicadores relacionados à qualificação, produtividade e dedicação do corpo docente do programa.",
+        "Formação Discente": "Métricas que avaliam a formação dos alunos e sua produção científica durante o curso.",
+        "Egressos": "Acompanhamento da trajetória profissional e acadêmica dos alunos após a conclusão do curso.",
+        "Produção Intelectual": "Análise da quantidade e qualidade da produção científica e tecnológica do programa.",
+        "Disciplinas": "Informações sobre a oferta e o aproveitamento das disciplinas do programa."
+    }
+    
+    st.markdown(f"<div class='help-text'>{category_descriptions.get(category, '')}</div>", unsafe_allow_html=True)
+    
+    # Criar seção para exibição dos cards
+    st.markdown("<div class='kpi-section'>", unsafe_allow_html=True)
     
     # Distribuir os KPIs em colunas (3 por linha)
     rows = (len(kpi_list) + 2) // 3
@@ -170,6 +184,8 @@ def render_kpi_category(category, kpi_list, kpis, kpi_descriptions):
                 if kpi in kpis:
                     with cols[col]:
                         render_kpi_card(kpi, kpis[kpi], kpi_descriptions.get(kpi, ""))
+    
+    st.markdown("</div>", unsafe_allow_html=True)
     
     # Adicionar visualizações específicas para a categoria
     if category == "Corpo Docente":
