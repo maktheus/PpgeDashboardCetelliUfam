@@ -4,6 +4,7 @@ import datetime
 from utils.database import init_database, get_uploaded_files, get_data_by_table_type, get_table_type_mapping
 from components.data_import import render_file_uploader, process_uploaded_file, render_data_mapping_tool, save_imported_data
 from components.batch_import import render_batch_import
+from components.data_editor import render_data_editor
 
 st.set_page_config(
     page_title="Gerenciamento de Dados - PPGE KPI Dashboard",
@@ -18,7 +19,7 @@ def render_page():
     """Render the Data Management page"""
     st.title("Gerenciamento de Dados")
     
-    tabs = st.tabs(["Importação em Lote", "Importação Individual", "Visualizar Dados", "Histórico de Uploads"])
+    tabs = st.tabs(["Importação em Lote", "Importação Individual", "Editar Dados", "Visualizar Dados", "Histórico de Uploads"])
     
     with tabs[0]:
         render_batch_import_section()
@@ -27,9 +28,12 @@ def render_page():
         render_individual_import_section()
     
     with tabs[2]:
-        render_view_export_section()
+        render_edit_data_section()
     
     with tabs[3]:
+        render_view_export_section()
+    
+    with tabs[4]:
         render_upload_history_section()
 
 def render_batch_import_section():
@@ -101,6 +105,45 @@ def render_individual_import_section():
                     else:
                         st.error("Falha ao salvar os dados importados no banco de dados.")
 
+def render_edit_data_section():
+    """Render the Edit Data section"""
+    
+    st.header("Editar Dados")
+    
+    # Info card about data editing
+    st.info(
+        "Aqui você pode editar dados existentes ou adicionar novos registros nas tabelas. "
+        "As alterações serão salvas diretamente no banco de dados."
+    )
+    
+    # Get table types
+    table_types = list(get_table_type_mapping().keys())
+    
+    # Table type selection
+    selected_table = st.selectbox(
+        "Selecionar tabela para editar:",
+        table_types,
+        key="edit_table_select"
+    )
+    
+    if selected_table:
+        # Render data editor for the selected table
+        render_data_editor(selected_table)
+        
+        st.markdown("---")
+        st.markdown("""
+        ### Instruções de Edição
+        
+        1. **Editar células**: Clique diretamente na célula para editar seu conteúdo.
+        2. **Adicionar linhas**: Clique no botão '+' no final da tabela para adicionar novas linhas.
+        3. **Salvar alterações**: Clique no botão 'Salvar Alterações' após fazer modificações.
+        
+        **Observações importantes**:
+        - Algumas colunas podem ter restrições de tipo (números, datas, etc.).
+        - O campo 'id' não pode ser editado por ser a chave primária.
+        - Após salvar, a tabela será atualizada automaticamente.
+        """)
+
 def render_view_export_section():
     """Render the View & Export Data section"""
     
@@ -112,7 +155,8 @@ def render_view_export_section():
     # Table type selection
     selected_table = st.selectbox(
         "Selecionar tipo de tabela para visualizar:",
-        table_types
+        table_types,
+        key="view_table_select"
     )
     
     if selected_table:
