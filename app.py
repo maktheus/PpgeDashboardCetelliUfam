@@ -134,6 +134,23 @@ def main():
         f"Programa = {st.session_state.selected_program}"
     )
     
+    # Atualizar opções de visualização para incluir indicadores CAPES
+    view_options = {
+        "KPI Dashboard": "kpi_dashboard",
+        "Indicadores CAPES": "capes_kpis",
+        "Visualizações Gerais": "visualizations"
+    }
+    
+    # Atualizar seletor de visualização no sidebar
+    selected_view = st.sidebar.radio(
+        "Escolher Visualização",
+        list(view_options.keys()),
+        key="view_selector",
+        index=0
+    )
+    
+    current_view = view_options[selected_view]
+    
     # Render the selected view
     if current_view == "kpi_dashboard":
         # If a specific KPI is selected, render its detailed view
@@ -148,6 +165,11 @@ def main():
             
             # Render the detailed KPI cards with explanations
             render_detailed_kpi_cards(kpi_data)
+    
+    elif current_view == "capes_kpis":
+        # Renderizar o dashboard de indicadores CAPES
+        from components.capes_kpis import render_capes_kpi_dashboard
+        render_capes_kpi_dashboard()
         
     elif current_view == "visualizations":
         # For visualization view, use the original overview page
