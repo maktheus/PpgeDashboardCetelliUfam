@@ -366,17 +366,50 @@ def save_df_to_database(df, table_name, file_id):
             # Add upload_id to DataFrame
             df['upload_id'] = file_id
             
+            # Removing rows that are completely NaN
+            df = df.dropna(how='all')
+            
+            # Handle empty DataFrame
+            if df.empty:
+                st.warning(f"Nenhum dado válido encontrado para importar na tabela {table_name}")
+                connection.close()
+                return False
+            
             # Get column names from DataFrame
             columns = df.columns.tolist()
+            
+            # Check if table exists
+            cursor.execute(f"SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = '{table_name}')")
+            table_exists = cursor.fetchone()[0]
+            
+            if not table_exists:
+                st.error(f"Tabela {table_name} não existe no banco de dados")
+                connection.close()
+                return False
+            
+            # Get columns of the table
+            cursor.execute(f"SELECT column_name FROM information_schema.columns WHERE table_name = '{table_name}'")
+            table_columns = [row[0] for row in cursor.fetchall()]
+            
+            # Filter DataFrame to include only columns that exist in the table
+            valid_columns = [col for col in columns if col.lower() in [c.lower() for c in table_columns]]
+            
+            if not valid_columns:
+                st.error(f"Nenhuma coluna válida encontrada para importar na tabela {table_name}")
+                connection.close()
+                return False
+            
+            # Filter DataFrame to include only valid columns
+            df_filtered = df[valid_columns].copy()
             
             # Create insert statement
             insert_stmt = sql.SQL("INSERT INTO {} ({}) VALUES %s").format(
                 sql.Identifier(table_name),
-                sql.SQL(', ').join(map(sql.Identifier, columns))
+                sql.SQL(', ').join(map(sql.Identifier, valid_columns))
             )
             
             # Convert DataFrame to list of tuples
-            values = [tuple(row) for row in df.values]
+            values = [tuple(row) for row in df_filtered.values]
             
             # Execute insert
             execute_values(cursor, insert_stmt, values)

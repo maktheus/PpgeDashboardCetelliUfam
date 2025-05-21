@@ -3,6 +3,7 @@ import pandas as pd
 import datetime
 from utils.database import init_database, get_uploaded_files, get_data_by_table_type, get_table_type_mapping
 from components.data_import import render_file_uploader, process_uploaded_file, render_data_mapping_tool, save_imported_data
+from components.batch_import import render_batch_import
 
 st.set_page_config(
     page_title="Gerenciamento de Dados - PPGE KPI Dashboard",
@@ -17,26 +18,43 @@ def render_page():
     """Render the Data Management page"""
     st.title("Gerenciamento de Dados")
     
-    tabs = st.tabs(["Importar Dados", "Visualizar Dados", "Histórico de Uploads"])
+    tabs = st.tabs(["Importação em Lote", "Importação Individual", "Visualizar Dados", "Histórico de Uploads"])
     
     with tabs[0]:
-        render_import_section()
+        render_batch_import_section()
     
     with tabs[1]:
-        render_view_export_section()
+        render_individual_import_section()
     
     with tabs[2]:
+        render_view_export_section()
+    
+    with tabs[3]:
         render_upload_history_section()
 
-def render_import_section():
-    """Render the Import Data section"""
+def render_batch_import_section():
+    """Render the Batch Import section for multiple tables from Excel"""
     
-    st.header("Importação de Dados")
+    st.header("Importação em Lote")
+    
+    # Info card about batch import
+    st.info(
+        "Importe múltiplas tabelas de um arquivo Excel de uma só vez. "
+        "Cada planilha será mapeada para a tabela correspondente no banco de dados."
+    )
+    
+    # Render batch import component
+    render_batch_import()
+
+def render_individual_import_section():
+    """Render the Individual Import Data section"""
+    
+    st.header("Importação Individual")
     
     # Info card about data import
     st.info(
-        "Importe dados de arquivos Excel, CSV ou JSON. O sistema ajudará a mapear "
-        "os campos para o formato necessário para o Dashboard PPGE."
+        "Importe dados individuais de arquivos Excel, CSV ou JSON. "
+        "Você poderá mapear as colunas do arquivo para o formato necessário do banco de dados."
     )
     
     # File uploader with table type selection
