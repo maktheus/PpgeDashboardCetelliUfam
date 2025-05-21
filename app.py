@@ -141,11 +141,12 @@ def main():
         "Visualizações Gerais": "visualizations"
     }
     
-    # Atualizar seletor de visualização no sidebar
+    # Remover a declaração anterior do radio button
+    # e usar uma nova chave para evitar conflitos
     selected_view = st.sidebar.radio(
         "Escolher Visualização",
         list(view_options.keys()),
-        key="view_selector",
+        key="main_view_selector",
         index=0
     )
     
