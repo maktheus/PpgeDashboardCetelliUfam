@@ -243,6 +243,14 @@ translations = {
         "pt": "Todos",
         "en": "All"
     },
+    "All": {
+        "pt": "Todos",
+        "en": "All"
+    },
+    "Todos": {
+        "pt": "Todos",
+        "en": "All"
+    },
     
     # Languages
     "pt_language": {

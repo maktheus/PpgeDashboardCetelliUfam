@@ -139,23 +139,47 @@ class DataManager:
         """
         filtered_df = df.copy()
         
-        # Apply year filter if not "All"
-        if 'selected_year' in st.session_state and st.session_state.selected_year != "All":
-            year = int(st.session_state.selected_year)
-            
-            # Filter enrollment_date by year
-            if 'enrollment_date' in filtered_df.columns:
-                filtered_df = filtered_df[
-                    (pd.to_datetime(filtered_df['enrollment_date']).dt.year == year)
-                ]
+        # Apply year filter if not "All" or "Todos"
+        if 'selected_year' in st.session_state and st.session_state.selected_year not in ["All", "Todos"]:
+            try:
+                year = int(st.session_state.selected_year)
+                
+                # Filter enrollment_date by year
+                if 'enrollment_date' in filtered_df.columns:
+                    filtered_df = filtered_df[
+                        (pd.to_datetime(filtered_df['enrollment_date']).dt.year == year)
+                    ]
+            except ValueError:
+                # If we can't convert to int, don't apply the filter
+                pass
         
-        # Apply program filter if not "All"
-        if 'selected_program' in st.session_state and st.session_state.selected_program != "All":
-            program = st.session_state.selected_program
-            
-            # Filter program column
-            if 'program' in filtered_df.columns:
-                filtered_df = filtered_df[filtered_df['program'] == program]
+        # Apply program filter if not in ["All", "Todos", "Masters", "Doctorate", "Mestrado", "Doutorado"]
+        if 'selected_program' in st.session_state:
+            if st.session_state.selected_program not in ["All", "Todos"]:
+                program = st.session_state.selected_program
+                
+                # Maps for program name translation
+                pt_to_en = {"Mestrado": "Masters", "Doutorado": "Doctorate"}
+                en_to_pt = {"Masters": "Mestrado", "Doctorate": "Doutorado"}
+                
+                # Filter program column with consideration for language variants
+                if 'program' in filtered_df.columns:
+                    # Handle both English and Portuguese program names
+                    if program in pt_to_en:
+                        # This is a Portuguese program name - include English equivalent
+                        filtered_df = filtered_df[
+                            (filtered_df['program'] == program) | 
+                            (filtered_df['program'] == pt_to_en[program])
+                        ]
+                    elif program in en_to_pt:
+                        # This is an English program name - include Portuguese equivalent
+                        filtered_df = filtered_df[
+                            (filtered_df['program'] == program) | 
+                            (filtered_df['program'] == en_to_pt[program])
+                        ]
+                    else:
+                        # Just use the program name as is
+                        filtered_df = filtered_df[filtered_df['program'] == program]
         
         return filtered_df
     

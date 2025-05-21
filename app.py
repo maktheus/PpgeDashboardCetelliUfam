@@ -50,11 +50,22 @@ from utils.translations import get_translation
 # Main app page - this will be the home page
 def main():
     # Initialize session state for filters and selected KPI
+    lang = st.session_state.language
+    all_text = get_translation("all", lang)
+    
     if 'selected_year' not in st.session_state:
-        st.session_state.selected_year = 'All'
+        st.session_state.selected_year = all_text
+    elif st.session_state.selected_year == 'All' and lang == 'en':
+        st.session_state.selected_year = all_text
+    elif st.session_state.selected_year == 'Todos' and lang == 'pt':
+        st.session_state.selected_year = all_text
     
     if 'selected_program' not in st.session_state:
-        st.session_state.selected_program = 'All'
+        st.session_state.selected_program = all_text
+    elif st.session_state.selected_program == 'All' and lang == 'en':
+        st.session_state.selected_program = all_text
+    elif st.session_state.selected_program == 'Todos' and lang == 'pt':
+        st.session_state.selected_program = all_text
     
     if 'selected_kpi' not in st.session_state:
         st.session_state.selected_kpi = None
@@ -445,8 +456,11 @@ def render_kpi_detail_view(kpi_type, df):
     - kpi_type: Type of KPI ('students', 'faculty', 'defense_time', 'success_rate', 'efficiency', 'completion')
     - df: DataFrame containing the data
     """
+    # Get current language
+    lang = st.session_state.language
+    
     # Add a back button
-    if st.button("← Voltar para KPI Dashboard"):
+    if st.button(get_translation("back_button", lang)):
         st.session_state.selected_kpi = None
         st.rerun()
     
