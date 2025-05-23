@@ -5,6 +5,7 @@ from utils.database import init_database, get_uploaded_files, get_data_by_table_
 from components.data_import import render_file_uploader, process_uploaded_file, render_data_mapping_tool, save_imported_data
 from components.batch_import import render_batch_import
 from components.data_editor import render_data_editor
+from utils.auth import require_authentication
 
 st.set_page_config(
     page_title="Gerenciamento de Dados - PPGE KPI Dashboard",
@@ -223,25 +224,10 @@ def render_upload_history_section():
         # Display upload history
         st.dataframe(uploads_df, use_container_width=True)
 
+@require_authentication
 def protected_render_page():
-    if 'authenticated' in st.session_state and st.session_state.authenticated:
-        render_page()
-    else:
-        st.warning("Você precisa estar autenticado para acessar esta página.")
-        
-        # Add login form
-        with st.form("login_form"):
-            username = st.text_input("Usuário")
-            password = st.text_input("Senha", type="password")
-            submit = st.form_submit_button("Login")
-            
-            if submit:
-                # Simple authentication (in production, use a more secure approach)
-                if username == "admin" and password == "admin":
-                    st.session_state.authenticated = True
-                    st.rerun()
-                else:
-                    st.error("Usuário ou senha incorretos.")
+    """Render the protected data management page with OTP authentication"""
+    render_page()
 
 if __name__ == "__main__":
     protected_render_page()
