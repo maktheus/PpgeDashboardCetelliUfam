@@ -97,6 +97,7 @@ def show_auth_screen():
     import streamlit as st
     import qrcode
     from io import BytesIO
+    from PIL import Image
     
     st.title("🔐 Acesso Restrito: Gerenciamento de Dados")
     
@@ -107,28 +108,60 @@ def show_auth_screen():
         st.write("""
         1. Para acessar esta página, você precisa ter um aplicativo de autenticação como Google Authenticator, 
            Authy ou Microsoft Authenticator.
-        2. Configure manualmente usando a chave secreta abaixo.
+        2. Escaneie o QR Code abaixo OU configure manualmente usando a chave secreta.
         3. Digite o código de 6 dígitos fornecido pelo aplicativo para acessar a página.
         """)
         
-        # Chave para configuração
+        # Gerar QR Code
+        totp_uri = get_totp_uri("PPGE Dashboard Admin", "PPGE Dashboard")
+        
+        # Criar QR Code
+        qr = qrcode.QRCode(
+            version=1,
+            error_correction=qrcode.constants.ERROR_CORRECT_L,
+            box_size=10,
+            border=4,
+        )
+        qr.add_data(totp_uri)
+        qr.make(fit=True)
+        
+        # Converter para imagem
+        qr_img = qr.make_image(fill_color="black", back_color="white")
+        
+        # Converter PIL Image para bytes
+        img_buffer = BytesIO()
+        qr_img.save(img_buffer, format='PNG')
+        img_buffer.seek(0)
+        
+        # Exibir QR Code
+        col1, col2, col3 = st.columns([1, 2, 1])
+        with col2:
+            st.image(img_buffer, caption="QR Code para configurar autenticador", width=250)
+        
+        st.markdown("---")
+        
+        # Chave para configuração manual
         totp_key = base64.b32encode(SECRET_KEY.encode()).decode('utf-8')
         st.markdown(f"""
-        #### Configure seu Autenticador:
+        #### Configuração Manual (caso não consiga escanear o QR Code):
         
-        **Google Authenticator**: Adicione uma nova conta e insira esta chave:
+        **Chave Secreta para inserir manualmente:**
         
         ```
         {totp_key}
         ```
         
-        [Link para Download do Google Authenticator](https://play.google.com/store/apps/details?id=com.google.android.apps.authenticator2)
+        **Links para Download dos Aplicativos:**
+        - [Google Authenticator (Android)](https://play.google.com/store/apps/details?id=com.google.android.apps.authenticator2)
+        - [Google Authenticator (iOS)](https://apps.apple.com/app/google-authenticator/id388497605)
+        - [Microsoft Authenticator](https://www.microsoft.com/pt-br/security/mobile-authenticator-app)
+        - [Authy](https://authy.com/download/)
         """)
     
     # Formulário de autenticação
     with st.form("auth_form"):
-        token = st.text_input("Código de Verificação (6 dígitos)", max_chars=6)
-        submitted = st.form_submit_button("Verificar")
+        token = st.text_input("Código de Verificação (6 dígitos)", max_chars=6, placeholder="000000")
+        submitted = st.form_submit_button("🔓 Verificar Código", use_container_width=True)
         
         if submitted:
             if verify_totp(token):
