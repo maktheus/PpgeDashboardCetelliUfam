@@ -13,6 +13,15 @@ DB_USER = os.environ.get('PGUSER')
 DB_PASSWORD = os.environ.get('PGPASSWORD')
 DB_URL = os.environ.get('DATABASE_URL')
 
+def get_db_connection():
+    """
+    Get a connection to the PostgreSQL database (alias for compatibility)
+    
+    Returns:
+    - Connection object
+    """
+    return get_connection()
+
 def get_connection():
     """
     Get a connection to the PostgreSQL database
@@ -332,6 +341,34 @@ def init_database():
                 nota_relevancia NUMERIC,
                 potencial_inovacao NUMERIC,
                 upload_id INTEGER REFERENCES uploaded_files(id)
+            )
+            """)
+            
+            # Students table for new student records
+            cursor.execute("""
+            CREATE TABLE IF NOT EXISTS students (
+                student_id SERIAL PRIMARY KEY,
+                student_name TEXT NOT NULL,
+                program TEXT NOT NULL,
+                department TEXT NOT NULL DEFAULT 'PPGE',
+                enrollment_date DATE NOT NULL,
+                defense_date DATE,
+                defense_status TEXT NOT NULL DEFAULT 'Pending',
+                advisor_id INTEGER,
+                advisor_name TEXT NOT NULL,
+                research_area TEXT DEFAULT 'Educação',
+                publications INTEGER DEFAULT 0,
+                created_at TIMESTAMP DEFAULT NOW()
+            )
+            """)
+            
+            # Advisors table for new advisor records
+            cursor.execute("""
+            CREATE TABLE IF NOT EXISTS advisors (
+                advisor_id SERIAL PRIMARY KEY,
+                advisor_name TEXT NOT NULL UNIQUE,
+                department TEXT DEFAULT 'PPGE',
+                created_at TIMESTAMP DEFAULT NOW()
             )
             """)
             

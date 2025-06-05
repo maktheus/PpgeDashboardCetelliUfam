@@ -116,6 +116,11 @@ def render_sidebar():
                     help="Importar e gerenciar dados"):
             st.session_state.active_page = 'data_management'
             st.rerun()
+            
+        if st.button("➕ Adicionar Estudante", use_container_width=True, 
+                    help="Adicionar novo estudante à base de dados"):
+            st.session_state.active_page = 'add_student'
+            st.rerun()
         
         st.divider()
         

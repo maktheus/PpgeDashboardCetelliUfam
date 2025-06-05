@@ -3,6 +3,7 @@ import streamlit as st
 import os
 import numpy as np
 from data.sample_data import generate_sample_data
+from utils.database import get_connection, init_database
 
 class DataManager:
     """Class for managing data in the PPGE KPI Dashboard"""
@@ -15,6 +16,9 @@ class DataManager:
         Returns:
         - DataFrame with the current data
         """
+        # Initialize database tables if needed
+        init_database()
+        
         # Check if data is in session state
         if 'data' not in st.session_state:
             # Se existir os arquivos de planilha, tenta importá-los
@@ -29,8 +33,72 @@ class DataManager:
                 # Initialize with sample data
                 st.session_state['data'] = generate_sample_data()
         
+        # Merge with manually added students from database
+        base_data = st.session_state['data'].copy()
+        manually_added_students = DataManager.get_manually_added_students()
+        
+        if not manually_added_students.empty:
+            # Combine data
+            combined_data = pd.concat([base_data, manually_added_students], ignore_index=True)
+            combined_data = combined_data.drop_duplicates(subset=['student_name', 'enrollment_date'], keep='last')
+        else:
+            combined_data = base_data
+        
         # Apply filters based on sidebar selections
-        return DataManager.apply_global_filters(st.session_state['data'])
+        return DataManager.apply_global_filters(combined_data)
+    
+    @staticmethod
+    def get_manually_added_students():
+        """
+        Get students that were manually added through the interface
+        
+        Returns:
+        - DataFrame with manually added students
+        """
+        try:
+            conn = get_connection()
+            if not conn:
+                return pd.DataFrame()
+            
+            query = """
+            SELECT 
+                student_id,
+                student_name,
+                program,
+                department,
+                enrollment_date,
+                defense_date,
+                defense_status,
+                advisor_id,
+                advisor_name,
+                research_area,
+                publications
+            FROM students
+            ORDER BY created_at DESC
+            """
+            
+            df = pd.read_sql_query(query, conn)
+            conn.close()
+            
+            if not df.empty:
+                # Convert date columns
+                df['enrollment_date'] = pd.to_datetime(df['enrollment_date'])
+                df['defense_date'] = pd.to_datetime(df['defense_date'])
+                
+                # Calculate time_to_defense for compatibility
+                df['time_to_defense'] = df.apply(
+                    lambda row: (
+                        (pd.to_datetime(row['defense_date']) - pd.to_datetime(row['enrollment_date'])).days / 30.44
+                        if pd.notna(row['defense_date']) and pd.notna(row['enrollment_date'])
+                        else None
+                    ), axis=1
+                )
+            
+            return df
+            
+        except Exception as e:
+            st.error(f"Erro ao carregar estudantes adicionados: {str(e)}")
+            return pd.DataFrame()
     
     @staticmethod
     def import_from_sucupira_data(sucupira_file, professores_file):
