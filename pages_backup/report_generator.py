@@ -51,20 +51,31 @@ def render_student_report_section(df):
     # Filter options
     st.markdown("### Filtros de Relatório")
     
-    col1, col2 = st.columns(2)
+    col1, col2, col3 = st.columns(3)
     
     with col1:
-        # Date range filter
-        if 'enrollment_date' in df.columns:
-            start_date, end_date = render_date_range_filter(
-                label="Período de Matrícula",
-                key_prefix="student_report_date"
+        # Defense date range filter (primary filter)
+        if 'defense_date' in df.columns:
+            defense_start_date, defense_end_date = render_date_range_filter(
+                label="Período da Defesa",
+                key_prefix="student_report_defense_date"
             )
         else:
-            start_date = end_date = None
-            st.info("Não há dados de data de matrícula disponíveis para filtragem.")
+            defense_start_date = defense_end_date = None
+            st.info("Não há dados de data de defesa disponíveis para filtragem.")
     
     with col2:
+        # Enrollment date range filter (secondary filter)
+        if 'enrollment_date' in df.columns:
+            enrollment_start_date, enrollment_end_date = render_date_range_filter(
+                label="Período de Matrícula",
+                key_prefix="student_report_enrollment_date"
+            )
+        else:
+            enrollment_start_date = enrollment_end_date = None
+            st.info("Não há dados de data de matrícula disponíveis para filtragem.")
+    
+    with col3:
         # Program filter
         if 'program' in df.columns:
             programs = ["All"] + sorted(df['program'].unique().tolist())
@@ -81,9 +92,15 @@ def render_student_report_section(df):
     # Apply filters
     filters = {}
     
-    if start_date and end_date and 'enrollment_date' in df.columns:
-        filters['enrollment_date'] = create_date_filter('enrollment_date', start_date, end_date)
+    # Primary filter: Defense date
+    if defense_start_date and defense_end_date and 'defense_date' in df.columns:
+        filters['defense_date'] = create_date_filter('defense_date', defense_start_date, defense_end_date)
     
+    # Secondary filter: Enrollment date
+    if enrollment_start_date and enrollment_end_date and 'enrollment_date' in df.columns:
+        filters['enrollment_date'] = create_date_filter('enrollment_date', enrollment_start_date, enrollment_end_date)
+    
+    # Program filter
     if selected_programs:
         filters['program'] = create_category_filter('program', selected_programs)
     
@@ -166,20 +183,53 @@ def render_faculty_report_section(df):
     # Filter options
     st.markdown("### Filtros de Relatório")
     
-    # Department filter if available
-    if 'department' in df.columns:
-        departments = df['department'].unique().tolist()
-        selected_departments = render_multi_select_filter(
-            departments,
-            "Selecionar Departamentos",
-            "faculty_report_departments",
-            default=[]
-        )
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        # Defense date range filter for advisor performance analysis
+        if 'defense_date' in df.columns:
+            faculty_defense_start_date, faculty_defense_end_date = render_date_range_filter(
+                label="Período da Defesa dos Orientandos",
+                key_prefix="faculty_report_defense_date"
+            )
+        else:
+            faculty_defense_start_date = faculty_defense_end_date = None
+            st.info("Não há dados de data de defesa disponíveis para filtragem.")
+    
+    with col2:
+        # Department filter if available
+        if 'department' in df.columns:
+            departments = df['department'].unique().tolist()
+            selected_departments = render_multi_select_filter(
+                departments,
+                "Selecionar Departamentos",
+                "faculty_report_departments",
+                default=[]
+            )
+        else:
+            selected_departments = []
+    
+    # Apply defense date filter to the original data first, then recalculate faculty metrics
+    filtered_student_df = df.copy()
+    
+    if faculty_defense_start_date and faculty_defense_end_date and 'defense_date' in df.columns:
+        # Filter students by defense date first
+        defense_filter = create_date_filter('defense_date', faculty_defense_start_date, faculty_defense_end_date)
+        filtered_student_df = apply_filters(df, {'defense_date': defense_filter})
         
-        if selected_departments:
-            # Filter faculty by department
-            dept_advisors = df[df['department'].isin(selected_departments)]['advisor_id'].unique()
-            faculty_df = faculty_df[faculty_df['advisor_id'].isin(dept_advisors)]
+        # Ensure we have a DataFrame
+        if hasattr(filtered_student_df, 'empty'):
+            # Recalculate faculty metrics based on filtered student data
+            faculty_df = calculate_advisor_metrics(filtered_student_df)
+        else:
+            st.error("Erro ao aplicar filtro de data de defesa.")
+            return
+    
+    # Apply department filter
+    if selected_departments and hasattr(filtered_student_df, 'columns'):
+        # Filter faculty by department
+        dept_advisors = filtered_student_df[filtered_student_df['department'].isin(selected_departments)]['advisor_id'].unique()
+        faculty_df = faculty_df[faculty_df['advisor_id'].isin(dept_advisors)]
     
     # Add minimum student filter
     min_students = st.slider(
