@@ -46,6 +46,7 @@ from components.kpi_cards import render_kpi_summary, render_detailed_kpi_cards
 from utils.calculations import calculate_time_to_defense
 from components.charts import render_time_series_chart, render_bar_chart, render_pie_chart, render_histogram
 from utils.translations import get_translation
+from components.chat_assistant import render_chat_assistant, render_chat_help
 
 # Main app page - this will be the home page
 def main():
@@ -159,7 +160,8 @@ def main():
     main_tabs = st.tabs([
         get_translation("overview_tab", lang), 
         get_translation("capes_indicators_tab", lang), 
-        get_translation("detailed_analysis_tab", lang)
+        get_translation("detailed_analysis_tab", lang),
+        "💬 Chat com Dados"
     ])
     
     # Tab 1: KPI Dashboard / Visão Geral
@@ -190,6 +192,11 @@ def main():
         # Add the existing visualization components
         # This is done by calling a modified version of the render_page function
         render_visualizations(df)
+    
+    # Tab 4: Chat com Dados
+    with main_tabs[3]:
+        render_chat_assistant()
+        render_chat_help()
 
 def render_interactive_kpi_cards(df):
     """

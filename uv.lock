@@ -1008,6 +1008,7 @@ dependencies = [
     { name = "pyotp" },
     { name = "qrcode" },
     { name = "reportlab" },
+    { name = "requests" },
     { name = "streamlit" },
     { name = "twilio" },
 ]
@@ -1023,6 +1024,7 @@ requires-dist = [
     { name = "pyotp", specifier = ">=2.9.0" },
     { name = "qrcode", specifier = ">=8.2" },
     { name = "reportlab", specifier = ">=4.4.0" },
+    { name = "requests", specifier = ">=2.32.3" },
     { name = "streamlit", specifier = ">=1.45.0" },
     { name = "twilio", specifier = ">=9.6.1" },
 ]
