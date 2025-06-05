@@ -220,11 +220,15 @@ def render_add_student_form():
                 
                 # Show success message and option to add another
                 st.info("Você pode visualizar o novo estudante na página de Gerador de Relatórios.")
-                
-                if st.button("Adicionar Outro Estudante", type="secondary"):
-                    st.rerun()
+                st.session_state.student_added = True
             else:
                 st.error(message)
+    
+    # Add another student button outside the form
+    if st.session_state.get('student_added', False):
+        if st.button("Adicionar Outro Estudante", type="secondary"):
+            st.session_state.student_added = False
+            st.rerun()
 
 def render_recent_students():
     """Show recently added students"""
