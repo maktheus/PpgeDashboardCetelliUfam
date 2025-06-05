@@ -210,7 +210,20 @@ def render_interactive_kpi_cards(df):
     """
     # Calculate KPIs
     total_students = len(df['student_id'].unique()) if 'student_id' in df.columns else 0
-    total_faculty = len(df['advisor_id'].unique()) if 'advisor_id' in df.columns else 0
+    
+    # Debug: mostrar informações sobre os dados
+    st.write("DEBUG - Informações do DataFrame:")
+    st.write(f"Total de linhas: {len(df)}")
+    st.write(f"Colunas disponíveis: {list(df.columns)}")
+    
+    if 'advisor_id' in df.columns:
+        st.write(f"Valores únicos de advisor_id: {df['advisor_id'].unique()}")
+        st.write(f"Contagem de advisor_id únicos: {len(df['advisor_id'].unique())}")
+        st.write(f"Valores nulos em advisor_id: {df['advisor_id'].isnull().sum()}")
+        total_faculty = len(df['advisor_id'].unique())
+    else:
+        st.write("Coluna 'advisor_id' não encontrada")
+        total_faculty = 0
     
     # Calculate defense related metrics
     if 'defense_status' in df.columns:
