@@ -34,7 +34,6 @@ def render_date_range_filter(label="Date Range", key_prefix="date"):
             max_value=max_date,
             key=start_key
         )
-        st.session_state[start_key] = start_date
         
     with col2:
         end_key = f"{key_prefix}_end"
@@ -48,7 +47,6 @@ def render_date_range_filter(label="Date Range", key_prefix="date"):
             max_value=max_date,
             key=end_key
         )
-        st.session_state[end_key] = end_date
     
     return start_date, end_date
 
