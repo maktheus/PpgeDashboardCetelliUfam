@@ -31,7 +31,8 @@ def render_date_range_filter(label="Date Range", key_prefix="date"):
             "Start Date",
             value=st.session_state[start_key],
             min_value=min_date,
-            max_value=max_date
+            max_value=max_date,
+            key=start_key
         )
         st.session_state[start_key] = start_date
         
@@ -44,7 +45,8 @@ def render_date_range_filter(label="Date Range", key_prefix="date"):
             "End Date",
             value=st.session_state[end_key],
             min_value=min_date,
-            max_value=max_date
+            max_value=max_date,
+            key=end_key
         )
         st.session_state[end_key] = end_date
     

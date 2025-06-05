@@ -214,19 +214,18 @@ def render_faculty_report_section(df):
     
     if faculty_defense_start_date and faculty_defense_end_date and 'defense_date' in df.columns:
         # Filter students by defense date first
-        defense_filter = create_date_filter('defense_date', faculty_defense_start_date, faculty_defense_end_date)
-        filtered_student_df = apply_filters(df, {'defense_date': defense_filter})
-        
-        # Ensure we have a DataFrame
-        if hasattr(filtered_student_df, 'empty'):
+        try:
+            defense_filter = create_date_filter('defense_date', faculty_defense_start_date, faculty_defense_end_date)
+            filtered_student_df = apply_filters(df, {'defense_date': defense_filter})
+            
             # Recalculate faculty metrics based on filtered student data
             faculty_df = calculate_advisor_metrics(filtered_student_df)
-        else:
-            st.error("Erro ao aplicar filtro de data de defesa.")
-            return
+        except Exception as e:
+            st.error(f"Erro ao aplicar filtro de data de defesa: {str(e)}")
+            filtered_student_df = df.copy()
     
     # Apply department filter
-    if selected_departments and hasattr(filtered_student_df, 'columns'):
+    if selected_departments and 'department' in filtered_student_df.columns:
         # Filter faculty by department
         dept_advisors = filtered_student_df[filtered_student_df['department'].isin(selected_departments)]['advisor_id'].unique()
         faculty_df = faculty_df[faculty_df['advisor_id'].isin(dept_advisors)]
