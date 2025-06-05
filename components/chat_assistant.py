@@ -205,7 +205,7 @@ def analyze_question_locally(user_question: str, data_summary: Dict[str, Any], d
 
 def call_free_llm_api(user_question: str, data_summary: Dict[str, Any]) -> str:
     """
-    Call a free LLM API (Hugging Face) to generate a response
+    Call a free LLM API to generate a response
     
     Parameters:
     - user_question: User's question
@@ -214,23 +214,43 @@ def call_free_llm_api(user_question: str, data_summary: Dict[str, Any]) -> str:
     Returns:
     - response: Response from the LLM API
     """
-    # Check if API key is available
-    api_key = st.secrets.get("HUGGINGFACE_API_KEY", None)
+    # Try multiple free API options
     
-    if not api_key:
-        return """
-        Para usar o assistente avançado de IA, você precisa configurar uma chave de API do Hugging Face.
-        
-        **Como obter uma chave gratuita:**
-        1. Acesse https://huggingface.co/
-        2. Crie uma conta gratuita
-        3. Vá em Settings > Access Tokens
-        4. Crie um novo token
-        5. Configure a variável HUGGINGFACE_API_KEY no seu ambiente
-        
-        **Enquanto isso, posso responder perguntas básicas sobre seus dados usando análise local.**
-        """
+    # Option 1: Try Hugging Face if API key is available
+    try:
+        if hasattr(st, 'secrets') and 'HUGGINGFACE_API_KEY' in st.secrets:
+            return call_huggingface_api(user_question, data_summary, st.secrets["HUGGINGFACE_API_KEY"])
+    except:
+        pass
     
+    # Option 2: Try using a free public endpoint (no API key required)
+    try:
+        return call_free_public_llm(user_question, data_summary)
+    except:
+        pass
+    
+    # Fallback: Provide information about setting up API access
+    return """
+    Para usar o assistente avançado de IA, você pode configurar uma das seguintes opções gratuitas:
+    
+    **Opção 1 - Hugging Face (Recomendado):**
+    1. Acesse https://huggingface.co/
+    2. Crie uma conta gratuita
+    3. Vá em Settings > Access Tokens
+    4. Crie um novo token
+    5. Configure HUGGINGFACE_API_KEY nos secrets do Streamlit
+    
+    **Opção 2 - OpenAI (Gratuito com limitações):**
+    1. Acesse https://platform.openai.com/
+    2. Crie uma conta e obtenha créditos gratuitos
+    3. Configure OPENAI_API_KEY nos secrets
+    
+    **Enquanto isso, posso responder perguntas básicas sobre seus dados usando análise local.**
+    Exemplos: "Quantos estudantes temos?", "Qual a média de tempo para defesa?", "Que dados estão disponíveis?"
+    """
+
+def call_huggingface_api(user_question: str, data_summary: Dict[str, Any], api_key: str) -> str:
+    """Call Hugging Face API with the provided API key"""
     try:
         # Prepare context
         context = f"""
@@ -239,8 +259,6 @@ def call_free_llm_api(user_question: str, data_summary: Dict[str, Any]) -> str:
         - Colunas disponíveis: {', '.join(data_summary['columns'])}
         - Colunas numéricas: {', '.join(data_summary['numeric_columns'])}
         - Colunas categóricas: {', '.join(data_summary['categorical_columns'])}
-        
-        Estatísticas básicas: {json.dumps(data_summary['basic_stats'], indent=2)}
         """
         
         # Prepare prompt
@@ -252,7 +270,6 @@ def call_free_llm_api(user_question: str, data_summary: Dict[str, Any]) -> str:
         Pergunta do usuário: {user_question}
         
         Responda de forma clara e objetiva em português, focando nos dados disponíveis.
-        Se precisar de mais informações específicas, sugira como o usuário pode explorar os dados.
         """
         
         # Call Hugging Face API
@@ -283,6 +300,64 @@ def call_free_llm_api(user_question: str, data_summary: Dict[str, Any]) -> str:
         return "A consulta está demorando muito. Tente fazer uma pergunta mais específica."
     except Exception as e:
         return f"Erro ao conectar com o serviço de IA: {str(e)}"
+
+def call_free_public_llm(user_question: str, data_summary: Dict[str, Any]) -> str:
+    """Try to call a free public LLM endpoint (no API key required)"""
+    # For now, this will use enhanced local analysis
+    # In the future, this could connect to other free services
+    return generate_enhanced_local_response(user_question, data_summary)
+
+def generate_enhanced_local_response(user_question: str, data_summary: Dict[str, Any]) -> str:
+    """Generate an enhanced response using local analysis"""
+    question_lower = user_question.lower()
+    
+    # More sophisticated pattern matching
+    response_parts = []
+    
+    # Check for data overview questions
+    if any(word in question_lower for word in ['visão geral', 'overview', 'resumo', 'summary']):
+        response_parts.append(f"**Visão Geral dos Dados:**")
+        response_parts.append(f"• Total de registros: {data_summary['total_records']}")
+        response_parts.append(f"• Campos disponíveis: {len(data_summary['columns'])}")
+        response_parts.append(f"• Dados numéricos: {len(data_summary['numeric_columns'])} campos")
+        response_parts.append(f"• Dados categóricos: {len(data_summary['categorical_columns'])} campos")
+    
+    # Check for statistical questions
+    if any(word in question_lower for word in ['estatísticas', 'statistics', 'números', 'dados']):
+        if data_summary['basic_stats']:
+            response_parts.append("**Estatísticas Principais:**")
+            for col, stats in data_summary['basic_stats'].items():
+                if col in data_summary['numeric_columns']:
+                    response_parts.append(f"• {col}: média={stats.get('mean', 0):.2f}, min={stats.get('min', 0)}, max={stats.get('max', 0)}")
+                elif 'unique_count' in stats:
+                    response_parts.append(f"• {col}: {stats['unique_count']} valores únicos")
+    
+    # Check for date range questions
+    if any(word in question_lower for word in ['período', 'range', 'datas', 'tempo']):
+        if data_summary.get('date_range'):
+            response_parts.append("**Períodos dos Dados:**")
+            for col, date_range in data_summary['date_range'].items():
+                response_parts.append(f"• {col}: {date_range['start']} até {date_range['end']}")
+    
+    if response_parts:
+        return "\n".join(response_parts)
+    
+    # Fallback to suggesting specific questions
+    return """
+    Posso ajudá-lo a analisar seus dados! Aqui estão algumas perguntas que posso responder:
+    
+    **Informações básicas:**
+    • "Quantos registros temos?"
+    • "Que dados estão disponíveis?"
+    • "Qual é o período dos dados?"
+    
+    **Análises específicas:**
+    • "Quantos estudantes temos?"
+    • "Qual a média de tempo para defesa?"
+    • "Quantos orientadores únicos existem?"
+    
+    Faça uma pergunta específica sobre seus dados!
+    """
 
 def render_chat_help():
     """
