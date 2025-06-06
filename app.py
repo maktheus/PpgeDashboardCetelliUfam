@@ -87,18 +87,46 @@ def main():
         # Get available years
         from components.sidebar import get_available_years, get_available_programs
         
-        # Year filter
-        years = get_available_years()
+        # Date range filter
+        st.subheader("Período Acadêmico")
         
-        if st.session_state.selected_year not in years:
-            st.session_state.selected_year = "All"
-            
-        selected_year = st.selectbox("Ano Acadêmico", years, 
-                                    index=years.index(st.session_state.selected_year),
-                                    key="year_filter")
+        # Initialize session state for date range
+        if 'start_date' not in st.session_state:
+            st.session_state.start_date = pd.to_datetime('2018-01-01').date()
+        if 'end_date' not in st.session_state:
+            st.session_state.end_date = pd.to_datetime('today').date()
         
-        if selected_year != st.session_state.selected_year:
-            st.session_state.selected_year = selected_year
+        # Date range inputs
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            start_date = st.date_input(
+                "Data Início",
+                value=st.session_state.start_date,
+                min_value=pd.to_datetime('2000-01-01').date(),
+                max_value=pd.to_datetime('today').date(),
+                key="start_date_filter",
+                format="DD/MM/YYYY"
+            )
+        
+        with col2:
+            end_date = st.date_input(
+                "Data Fim",
+                value=st.session_state.end_date,
+                min_value=pd.to_datetime('2000-01-01').date(),
+                max_value=pd.to_datetime('today').date(),
+                key="end_date_filter",
+                format="DD/MM/YYYY"
+            )
+        
+        # Update session state
+        if start_date != st.session_state.start_date:
+            st.session_state.start_date = start_date
+        if end_date != st.session_state.end_date:
+            st.session_state.end_date = end_date
+        
+        # Show selected period info
+        st.caption(f"Período selecionado: {start_date.strftime('%d/%m/%Y')} - {end_date.strftime('%d/%m/%Y')}")
         
         # Program filter
         programs = get_available_programs()
@@ -210,20 +238,7 @@ def render_interactive_kpi_cards(df):
     """
     # Calculate KPIs
     total_students = len(df['student_id'].unique()) if 'student_id' in df.columns else 0
-    
-    # Debug: mostrar informações sobre os dados
-    st.write("DEBUG - Informações do DataFrame:")
-    st.write(f"Total de linhas: {len(df)}")
-    st.write(f"Colunas disponíveis: {list(df.columns)}")
-    
-    if 'advisor_id' in df.columns:
-        st.write(f"Valores únicos de advisor_id: {df['advisor_id'].unique()}")
-        st.write(f"Contagem de advisor_id únicos: {len(df['advisor_id'].unique())}")
-        st.write(f"Valores nulos em advisor_id: {df['advisor_id'].isnull().sum()}")
-        total_faculty = len(df['advisor_id'].unique())
-    else:
-        st.write("Coluna 'advisor_id' não encontrada")
-        total_faculty = 0
+    total_faculty = len(df['advisor_id'].unique()) if 'advisor_id' in df.columns else 0
     
     # Calculate defense related metrics
     if 'defense_status' in df.columns:
