@@ -207,19 +207,22 @@ class DataManager:
         """
         filtered_df = df.copy()
         
-        # Apply year filter if not "All" or "Todos"
-        if 'selected_year' in st.session_state and st.session_state.selected_year not in ["All", "Todos"]:
-            try:
-                year = int(st.session_state.selected_year)
+        # Apply date range filter
+        if 'start_date' in st.session_state and 'end_date' in st.session_state:
+            start_date = st.session_state.start_date
+            end_date = st.session_state.end_date
+            
+            # Filter enrollment_date by date range
+            if 'enrollment_date' in filtered_df.columns:
+                # Convert to datetime if needed
+                if filtered_df['enrollment_date'].dtype != 'datetime64[ns]':
+                    filtered_df['enrollment_date'] = pd.to_datetime(filtered_df['enrollment_date'])
                 
-                # Filter enrollment_date by year
-                if 'enrollment_date' in filtered_df.columns:
-                    filtered_df = filtered_df[
-                        (pd.to_datetime(filtered_df['enrollment_date']).dt.year == year)
-                    ]
-            except ValueError:
-                # If we can't convert to int, don't apply the filter
-                pass
+                # Apply date range filter
+                filtered_df = filtered_df[
+                    (filtered_df['enrollment_date'].dt.date >= start_date) &
+                    (filtered_df['enrollment_date'].dt.date <= end_date)
+                ]
         
         # Apply program filter if not in ["All", "Todos", "Masters", "Doctorate", "Mestrado", "Doutorado"]
         if 'selected_program' in st.session_state:

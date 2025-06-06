@@ -177,12 +177,17 @@ def main():
         df = calculate_time_to_defense(df)
     
     # Show filter information
-    st.info(
-        get_translation("current_filter_info", lang).format(
-            st.session_state.selected_year, 
-            st.session_state.selected_program
-        )
-    )
+    if 'start_date' in st.session_state and 'end_date' in st.session_state:
+        period_info = f"Período: {st.session_state.start_date.strftime('%d/%m/%Y')} - {st.session_state.end_date.strftime('%d/%m/%Y')}"
+    else:
+        period_info = "Período: Todos os anos"
+    
+    if 'selected_program' in st.session_state:
+        program_info = f"Programa: {st.session_state.selected_program}"
+    else:
+        program_info = "Programa: Todos"
+    
+    st.info(f"Filtros aplicados - {period_info}, {program_info}")
     
     # Use tabs to improve flow instead of sidebar
     main_tabs = st.tabs([
