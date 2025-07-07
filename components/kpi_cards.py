@@ -118,9 +118,12 @@ def render_kpi_summary(df):
             permanentes_count = len(docentes_permanentes_df['docente'].unique())
             total_faculty += permanentes_count
         
-        # Note: docentes_colaboradores table doesn't exist in the database
-        # Using only permanent faculty for now
+        # Get collaborating faculty
+        docentes_colaboradores_df = get_all_data_from_table('docentes_colaboradores')
         colaboradores_count = 0
+        if not docentes_colaboradores_df.empty and 'docente' in docentes_colaboradores_df.columns:
+            colaboradores_count = len(docentes_colaboradores_df['docente'].unique())
+            total_faculty += colaboradores_count
             
         # Debug info - will be visible in console
         print(f"Debug: Docentes permanentes: {permanentes_count}")
