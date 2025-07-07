@@ -113,14 +113,22 @@ def render_kpi_summary(df):
     try:
         # Get permanent faculty
         docentes_permanentes_df = get_all_data_from_table('docentes_permanentes')
+        permanentes_count = 0
         if not docentes_permanentes_df.empty and 'docente' in docentes_permanentes_df.columns:
-            total_faculty += len(docentes_permanentes_df['docente'].unique())
+            permanentes_count = len(docentes_permanentes_df['docente'].unique())
+            total_faculty += permanentes_count
         
-        # Get collaborator faculty 
-        docentes_colaboradores_df = get_all_data_from_table('docentes_colaboradores')
-        if not docentes_colaboradores_df.empty and 'docente' in docentes_colaboradores_df.columns:
-            total_faculty += len(docentes_colaboradores_df['docente'].unique())
-    except:
+        # Note: docentes_colaboradores table doesn't exist in the database
+        # Using only permanent faculty for now
+        colaboradores_count = 0
+            
+        # Debug info - will be visible in console
+        print(f"Debug: Docentes permanentes: {permanentes_count}")
+        print(f"Debug: Docentes colaboradores: {colaboradores_count}")
+        print(f"Debug: Total de docentes calculado: {total_faculty}")
+        
+    except Exception as e:
+        print(f"Erro ao calcular total de docentes: {str(e)}")
         # Fallback to advisor count from main data
         total_faculty = len(df['advisor_id'].unique()) if 'advisor_id' in df.columns else 0
     

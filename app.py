@@ -936,23 +936,19 @@ def render_visualizations(df):
             st.info("Sem dados de tempo até a defesa disponíveis.")
     
     with col2:
-        st.subheader("Taxa de Sucesso nas Defesas")
+        st.subheader("Distribuição por Status de Defesa")
         
-        if 'defense_status' in df.columns and 'program' in df.columns:
-            # Calculate success rate by program
-            success_rate_by_program = calculate_success_rate(df, by_group='program')
+        if 'defense_status' in df.columns:
+            # Show distribution of defense status instead of success rate
+            status_counts = df['defense_status'].value_counts().reset_index()
+            status_counts.columns = ['status', 'count']
             
-            if not isinstance(success_rate_by_program, float) and not success_rate_by_program.empty:
-                success_rate_by_program['success_rate'] = (success_rate_by_program['success_rate'] * 100).round(1)
-                
-                render_bar_chart(
-                    success_rate_by_program,
-                    title="Taxa de Sucesso nas Defesas por Programa (%)",
-                    x_column="program",
-                    y_column="success_rate"
-                )
-            else:
-                st.info("Sem dados de status de defesa disponíveis.")
+            render_pie_chart(
+                status_counts,
+                title="Situação das Defesas",
+                values_column="count",
+                names_column="status"
+            )
         else:
             st.info("Sem dados de status de defesa disponíveis.")
 
