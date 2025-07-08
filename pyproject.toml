@@ -1,19 +1,29 @@
-[project]
+[tool.poetry]
 name = "repl-nix-workspace"
 version = "0.1.0"
 description = "Add your description here"
-requires-python = ">=3.11,<4.0"
-dependencies = [
-    "google-auth>=2.40.1",
-    "numpy>=2.2.5",
-    "openpyxl>=3.1.5",
-    "pandas>=2.2.3",
-    "plotly>=6.0.1",
-    "psycopg2-binary>=2.9.10",
-    "pyotp>=2.9.0",
-    "qrcode>=8.2",
-    "reportlab>=4.4.0",
-    "requests>=2.32.3",
-    "streamlit>=1.45.0",
-    "twilio>=9.6.1",
-]
+authors = ["Seu Nome <seuemail@example.com>"]
+packages = []
+python = ">=3.11,<4.0"
+
+[tool.poetry.dependencies]
+python = ">=3.11,<4.0"
+google-auth = ">=2.40.1"
+numpy = ">=2.2.5"
+openpyxl = ">=3.1.5"
+pandas = ">=2.2.3"
+plotly = ">=6.0.1"
+psycopg2-binary = ">=2.9.10"
+pyotp = ">=2.9.0"
+qrcode = ">=8.2"
+reportlab = ">=4.4.0"
+requests = ">=2.32.3"
+streamlit = ">=1.45.0"
+twilio = ">=9.6.1"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.package-mode]
+package-mode = false
