@@ -2,9 +2,7 @@
 name = "repl-nix-workspace"
 version = "0.1.0"
 description = "Add your description here"
-authors = ["Seu Nome <seuemail@example.com>"]
 packages = []
-python = ">=3.11,<4.0"
 
 [tool.poetry.dependencies]
 python = ">=3.11,<4.0"
@@ -24,6 +22,3 @@ twilio = ">=9.6.1"
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
-
-[tool.poetry.package-mode]
-package-mode = false
