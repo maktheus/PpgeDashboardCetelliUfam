@@ -107,14 +107,7 @@ translations = {
         "pt": "Clique em um KPI para visualizar gráficos e análises detalhadas",
         "en": "Click on a KPI to view detailed charts and analysis"
     },
-    "time_metrics": {
-        "pt": "Métricas de Tempo",
-        "en": "Time Metrics"
-    },
-    "efficiency_metrics": {
-        "pt": "Métricas de Eficiência",
-        "en": "Efficiency Metrics"
-    },
+
     "view_details": {
         "pt": "Ver Detalhes",
         "en": "View Details"

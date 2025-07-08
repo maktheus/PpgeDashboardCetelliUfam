@@ -93,19 +93,67 @@ def render_kpi_summary(df):
     Parameters:
     - df: DataFrame containing the data
     """
-    # Calculate KPIs
-    total_students = len(df['student_id'].unique()) if 'student_id' in df.columns else 0
-    total_faculty = len(df['advisor_id'].unique()) if 'advisor_id' in df.columns else 0
+    # Calculate KPIs for Masters and Doctorate separately
+    total_masters = 0
+    total_doctorate = 0
     
-    # Calculate average time to defense (in months)
-    if 'enrollment_date' in df.columns and 'defense_date' in df.columns:
+    if 'program' in df.columns:
+        total_masters = len(df[df['program'].str.contains('Mestrado|Masters', case=False, na=False)]['student_id'].unique()) if 'student_id' in df.columns else 0
+        total_doctorate = len(df[df['program'].str.contains('Doutorado|Doctorate', case=False, na=False)]['student_id'].unique()) if 'student_id' in df.columns else 0
+    else:
+        # Fallback if no program column
+        total_students = len(df['student_id'].unique()) if 'student_id' in df.columns else 0
+        total_masters = total_students // 2  # Rough estimation
+        total_doctorate = total_students - total_masters
+    
+    # Calculate total faculty (permanent + collaborators)
+    from utils.kpi_calculations import get_all_data_from_table
+    total_faculty = 0
+    
+    try:
+        # Get permanent faculty
+        docentes_permanentes_df = get_all_data_from_table('docentes_permanentes')
+        permanentes_count = 0
+        if not docentes_permanentes_df.empty and 'docente' in docentes_permanentes_df.columns:
+            permanentes_count = len(docentes_permanentes_df['docente'].unique())
+            total_faculty += permanentes_count
+        
+        # Get collaborating faculty
+        docentes_colaboradores_df = get_all_data_from_table('docentes_colaboradores')
+        colaboradores_count = 0
+        if not docentes_colaboradores_df.empty and 'docente' in docentes_colaboradores_df.columns:
+            colaboradores_count = len(docentes_colaboradores_df['docente'].unique())
+            total_faculty += colaboradores_count
+            
+        # Debug info - will be visible in console
+        print(f"Debug: Docentes permanentes: {permanentes_count}")
+        print(f"Debug: Docentes colaboradores: {colaboradores_count}")
+        print(f"Debug: Total de docentes calculado: {total_faculty}")
+        
+    except Exception as e:
+        print(f"Erro ao calcular total de docentes: {str(e)}")
+        # Fallback to advisor count from main data
+        total_faculty = len(df['advisor_id'].unique()) if 'advisor_id' in df.columns else 0
+    
+    # Calculate average time to defense for Masters and Doctorate separately
+    avg_time_masters = 0
+    avg_time_doctorate = 0
+    
+    if 'enrollment_date' in df.columns and 'defense_date' in df.columns and 'program' in df.columns:
         df['time_to_defense'] = (pd.to_datetime(df['defense_date']) - 
                                 pd.to_datetime(df['enrollment_date'])).dt.days / 30.44  # Average days per month
-        avg_time_to_defense = round(df['time_to_defense'].mean(), 1)
-    else:
-        avg_time_to_defense = 0
+        
+        # Masters time
+        masters_df = df[df['program'].str.contains('Mestrado|Masters', case=False, na=False)]
+        if not masters_df.empty and 'time_to_defense' in masters_df.columns:
+            avg_time_masters = round(masters_df['time_to_defense'].mean(), 1)
+        
+        # Doctorate time
+        doctorate_df = df[df['program'].str.contains('Doutorado|Doctorate', case=False, na=False)]
+        if not doctorate_df.empty and 'time_to_defense' in doctorate_df.columns:
+            avg_time_doctorate = round(doctorate_df['time_to_defense'].mean(), 1)
     
-    # Calculate defense success rate
+    # Calculate defense success rate (keep code but don't display)
     if 'defense_status' in df.columns:
         defense_success_rate = round(df[df['defense_status'] == 'Approved'].shape[0] / 
                                     max(1, df[df['defense_status'].notna()].shape[0]) * 100, 1)
@@ -115,44 +163,58 @@ def render_kpi_summary(df):
     # Display metrics in a simple card layout
     st.markdown("## Principais Indicadores de Desempenho (KPIs)")
     
-    # Create a 4-column layout for compact view
+    # Create a 4-column layout for the new metrics
     col1, col2, col3, col4 = st.columns(4)
     
     with col1:
         metric_card(
-            title="Total de Alunos",
-            value=total_students,
-            help_text="Número total de alunos no programa"
+            title="Total de Alunos Mestrado",
+            value=total_masters,
+            help_text="Número total de alunos de mestrado no programa"
         )
     
     with col2:
         metric_card(
-            title="Total de Docentes",
-            value=total_faculty,
-            help_text="Número total de docentes orientando alunos"
+            title="Total de Alunos Doutorado",
+            value=total_doctorate,
+            help_text="Número total de alunos de doutorado no programa"
         )
     
     with col3:
         metric_card(
-            title="Tempo Médio até Defesa",
-            value=avg_time_to_defense,
-            suffix=" meses",
-            help_text="Tempo médio desde o ingresso até a defesa"
+            title="Total de Docentes",
+            value=total_faculty,
+            help_text="Número total de docentes (permanentes + colaboradores)"
         )
     
     with col4:
         metric_card(
-            title="Taxa de Sucesso na Defesa",
-            value=defense_success_rate,
-            suffix="%",
-            help_text="Porcentagem de defesas com aprovação"
+            title="Tempo Médio de Defesa de Mestrado",
+            value=avg_time_masters,
+            suffix=" meses",
+            help_text="Tempo médio desde o ingresso até a defesa - Mestrado"
         )
     
+    # Second row for doctorate defense time
+    col5, col6, col7, col8 = st.columns(4)
+    
+    with col5:
+        metric_card(
+            title="Tempo Médio de Defesa de Doutorado",
+            value=avg_time_doctorate,
+            suffix=" meses",
+            help_text="Tempo médio desde o ingresso até a defesa - Doutorado"
+        )
+    
+    # Keep other columns empty for now, can be used for future metrics
+    
     return {
-        "total_students": total_students,
+        "total_masters": total_masters,
+        "total_doctorate": total_doctorate,
         "total_faculty": total_faculty,
-        "avg_time_to_defense": avg_time_to_defense,
-        "defense_success_rate": defense_success_rate
+        "avg_time_masters": avg_time_masters,
+        "avg_time_doctorate": avg_time_doctorate,
+        "defense_success_rate": defense_success_rate  # Keep for future use
     }
 
 def render_detailed_kpi_cards(kpi_data):
@@ -169,45 +231,67 @@ def render_detailed_kpi_cards(kpi_data):
     
     with col1:
         detailed_kpi_card(
-            title="Total de Alunos",
-            value=kpi_data["total_students"],
-            description="Representa o número total de alunos matriculados no programa de pós-graduação. "
-                       "Este indicador é fundamental para entender a dimensão do programa e sua capacidade "
-                       "de formação de recursos humanos qualificados.",
-            formula="Contagem distinta de IDs de estudantes no conjunto de dados"
+            title="Total de Alunos Mestrado",
+            value=kpi_data.get("total_masters", 0),
+            description="Representa o número total de alunos de mestrado matriculados no programa de pós-graduação. "
+                       "Este indicador é fundamental para entender a dimensão do programa de mestrado e sua capacidade "
+                       "de formação de recursos humanos qualificados em nível de mestrado.",
+            formula="Contagem distinta de IDs de estudantes de mestrado no conjunto de dados"
         )
         
         st.markdown("---")
         
         detailed_kpi_card(
-            title="Tempo Médio até Defesa",
-            value=kpi_data["avg_time_to_defense"],
+            title="Total de Docentes",
+            value=kpi_data.get("total_faculty", 0),
+            description="Representa o número total de professores (permanentes + colaboradores) ativos no programa. "
+                       "Este indicador reflete a capacidade de orientação e a diversidade de especialidades "
+                       "disponíveis para os alunos do programa.",
+            formula="Contagem de docentes permanentes + docentes colaboradores"
+        )
+        
+        st.markdown("---")
+        
+        detailed_kpi_card(
+            title="Tempo Médio de Defesa de Mestrado",
+            value=kpi_data.get("avg_time_masters", 0),
             suffix=" meses",
-            description="Calcula o tempo médio que os alunos levam desde a matrícula até a defesa da "
-                       "dissertação/tese. Este indicador é importante para avaliar a eficiência do programa "
-                       "em formar seus alunos dentro do prazo esperado. Valores menores indicam maior eficiência "
-                       "do processo formativo.",
-            formula="Média(Data de Defesa - Data de Matrícula) em meses"
+            description="Calcula o tempo médio que os alunos de mestrado levam desde a matrícula até a defesa da "
+                       "dissertação. Este indicador é importante para avaliar a eficiência do programa "
+                       "em formar seus mestrandos dentro do prazo esperado (24 meses).",
+            formula="Média(Data de Defesa - Data de Matrícula) em meses para mestrandos"
         )
     
     with col2:
         detailed_kpi_card(
-            title="Total de Docentes",
-            value=kpi_data["total_faculty"],
-            description="Representa o número total de professores orientadores ativos no programa. "
-                       "Este indicador reflete a capacidade de orientação e a diversidade de especialidades "
-                       "disponíveis para os alunos do programa.",
-            formula="Contagem distinta de IDs de orientadores no conjunto de dados"
+            title="Total de Alunos Doutorado",
+            value=kpi_data.get("total_doctorate", 0),
+            description="Representa o número total de alunos de doutorado matriculados no programa de pós-graduação. "
+                       "Este indicador é fundamental para entender a dimensão do programa de doutorado e sua capacidade "
+                       "de formação de doutores qualificados.",
+            formula="Contagem distinta de IDs de estudantes de doutorado no conjunto de dados"
         )
         
         st.markdown("---")
         
         detailed_kpi_card(
-            title="Taxa de Sucesso na Defesa",
-            value=kpi_data["defense_success_rate"],
-            suffix="%",
-            description="Percentual de alunos que defenderam com sucesso suas dissertações/teses em relação "
-                       "ao total que chegou à fase de defesa. Este indicador reflete a qualidade da "
-                       "preparação dos alunos e a efetividade do processo de orientação.",
-            formula="(Número de defesas aprovadas / Total de defesas) × 100"
+            title="Tempo Médio de Defesa de Doutorado",
+            value=kpi_data.get("avg_time_doctorate", 0),
+            suffix=" meses",
+            description="Calcula o tempo médio que os alunos de doutorado levam desde a matrícula até a defesa da "
+                       "tese. Este indicador é importante para avaliar a eficiência do programa "
+                       "em formar seus doutorandos dentro do prazo esperado (48 meses).",
+            formula="Média(Data de Defesa - Data de Matrícula) em meses para doutorandos"
         )
+        
+        # Taxa de Sucesso na Defesa - keeping code but commented out for display
+        # st.markdown("---")
+        # detailed_kpi_card(
+        #     title="Taxa de Sucesso na Defesa",
+        #     value=kpi_data.get("defense_success_rate", 0),
+        #     suffix="%",
+        #     description="Percentual de alunos que defenderam com sucesso suas dissertações/teses em relação "
+        #                "ao total que chegou à fase de defesa. Este indicador reflete a qualidade da "
+        #                "preparação dos alunos e a efetividade do processo de orientação.",
+        #     formula="(Número de defesas aprovadas / Total de defesas) × 100"
+        # )
